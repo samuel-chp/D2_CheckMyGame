@@ -7,7 +7,7 @@ from db import MainDBHelper, SourceDBHelper
 from models.activity import Activity
 from models.guardian import Guardian
 
-ROOT_DATA_FOLDER = "D:/GameDev/D2FunnyStats/data"
+ROOT_DATA_FOLDER = "../data"
 
 db_helper = MainDBHelper("main.db", ROOT_DATA_FOLDER)
 

@@ -33,8 +33,8 @@ ACTIVITY_DB_LOCK = asyncio.Lock()  # not used atm
 TIMEOUT = aiohttp.ClientTimeout(total=10800)   # 3 hours
 
 # Folder config
-ROOT_DATA_FOLDER = "D:/GameDev/D2FunnyStats/data"
-{}
+ROOT_DATA_FOLDER = "data"
+
 # Scraping parameters
 GAMEMODE = 5  # AllPvP https://bungie-net.github.io/multi/schema_Destiny-HistoricalStats-Definitions-DestinyActivityModeType.html#schema_Destiny-HistoricalStats-Definitions-DestinyActivityModeType
 START_DATE = datetime(year=2022, month=1, day=1)  # minimum date for activities fetched

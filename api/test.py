@@ -33,6 +33,11 @@ class MatchPredictor:
         return True
 
     def _extract_guardians_from_carnage_report(self, carnage_report) -> list[list[Guardian], list[Guardian]]:
+        """
+        Extract guardians ids from the carnage report and return two lists of guardians - one for each team.
+        :param carnage_report: 
+        :return: 
+        """
         guardians = [[], []]
         
         team_a = carnage_report["teams"][0]["teamId"]
@@ -66,6 +71,11 @@ class MatchPredictor:
         return guardians
     
     def _preprocess_inputs(self, guardians: list[list[Guardian], list[Guardian]]):
+        """
+        Sensitive function to prepare the data to feed the classifier like in training. Check the processing jupyter notebook.
+        :param guardians: 
+        :return: 
+        """
         STATS_NAME = ["combat_rating", "kills_pga", "assists_pga", "deaths_pga", "score_pga", "win_ratio", "kd", "kda"]
         N_STATS = len(STATS_NAME)
         PLAYERS_COLUMNS = np.array([[f"player_{i}_{stat}" for stat in STATS_NAME] for i in range(1, 13)]).flatten()
@@ -97,6 +107,11 @@ class MatchPredictor:
         return pd.DataFrame([row], columns=PLAYERS_COLUMNS)
     
     async def predict_winner_from_guardians(self, guardians: list[list[Guardian], list[Guardian]]):
+        """
+        Predict the probabilities to win for each team.
+        :param guardians: two lists for the guardians in each team
+        :return: list[float, float]
+        """
         # Get guardians stats
         tasks = []
         for guardian in guardians[0]+guardians[1]:
@@ -115,6 +130,11 @@ class MatchPredictor:
         return pred
     
     async def predict_winner_from_activity(self, activity: Activity):
+        """
+        
+        :param activity: only the instanceId is required.
+        :return: 
+        """
         # Fetch carnage report
         carnage_report = await self.api.fetch_carnage_report(activity.instance_id)
         if 70 not in carnage_report["activityDetails"]["modes"]:  # Quickplay
@@ -135,12 +155,13 @@ class MatchPredictor:
         
         return pred
 
+
 async def main():
     global r
     async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=3600)) as session:
         api = BungieAPI(session)
         predictor = MatchPredictor(api, "api/model_quickplay.json")
-        r = await predictor.predict_winner_from_activity(Activity(instance_id=11980817783))
+        r = await predictor.predict_winner_from_activity(Activity(instance_id=11983979189))
         print(r)
 
 
