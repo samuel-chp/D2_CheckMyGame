@@ -51,7 +51,7 @@ BREEKY_CHARACTER_ID = "2305843009403261815"  # Titan
 db_helper = MainDBHelper(name="main.db", folder=ROOT_DATA_FOLDER)
 source_db_helper = SourceDBHelper(name="sources.db", folder=ROOT_DATA_FOLDER)
 
-current_row_id = 1
+current_row_id = 6700
 
 
 def select_next_guardian() -> Guardian:
@@ -180,7 +180,7 @@ async def fetch_source_activities(api, source: Guardian):
 async def main():
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         api = BungieAPI(session)
-        for i in range(500):
+        while True:
             source = select_next_guardian()
             await fetch_source_activities(api, source)
             db_helper.commit()
