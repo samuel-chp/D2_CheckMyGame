@@ -37,8 +37,8 @@ ROOT_DATA_FOLDER = "data"
 
 # Scraping parameters
 GAMEMODE = 5  # AllPvP https://bungie-net.github.io/multi/schema_Destiny-HistoricalStats-Definitions-DestinyActivityModeType.html#schema_Destiny-HistoricalStats-Definitions-DestinyActivityModeType
-START_DATE = datetime(year=2022, month=1, day=1)  # minimum date for activities fetched
-END_DATE = datetime(year=2025, month=1, day=1)  # maximum date for activities fetched
+START_DATE = datetime(year=2021, month=1, day=1)  # minimum date for activities fetched
+END_DATE = datetime(year=2022, month=1, day=1)  # maximum date for activities fetched
 
 # Example for debug
 BREEKY_DISPLAY_NAME = "Breeky"
@@ -51,7 +51,7 @@ BREEKY_CHARACTER_ID = "2305843009403261815"  # Titan
 db_helper = MainDBHelper(name="main.db", folder=ROOT_DATA_FOLDER)
 source_db_helper = SourceDBHelper(name="sources.db", folder=ROOT_DATA_FOLDER)
 
-current_row_id = 6700
+current_row_id = 9000
 
 
 def select_next_guardian() -> Guardian:
