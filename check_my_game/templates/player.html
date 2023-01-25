@@ -1,0 +1,156 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+
+    <div class="" container>
+        <h1>Breeky</h1>
+    </div>
+
+    <div class="container">
+        <h2>Stats</h2>
+        <input type="checkbox" id="seasonal-checkbox">
+        <table class="table" id="stats-table">
+            <thead></thead>
+            <tbody>
+            <tr>
+                <td>Activities entered</td>
+                <td>-</td>
+            </tr>
+            <tr>
+                <td>Kills</td>
+                <td>-</td>
+            </tr>
+            <tr>
+                <td>Assists</td>
+                <td>-</td>
+            </tr>
+            <tr>
+                <td>Deaths</td>
+                <td>-</td>
+            </tr>
+            <tr>
+                <td>KD</td>
+                <td>-</td>
+            </tr>
+            <tr>
+                <td>KDA</td>
+                <td>-</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="container">
+        <h2>Recent Games</h2>
+        <table class="table" id="games-table">
+            <thead></thead>
+            <tbody>
+            <tr>
+                <td>
+                    <p>Choc</p>
+                    <p>23/01/2023</p>
+                    <p>Terre de rouilles</p>
+                </td>
+                <td>
+                    <p>Score</p>
+                    <p>150 - 73</p>
+                </td>
+                <td>
+                    <p>KD</p>
+                    <p>2.1</p>
+                </td>
+                <td>
+                    <p>KDA</p>
+                    <p>2.5</p>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}
+
+{% block content_script %}
+    <script>
+
+        window.onload = (event) => {
+            // Parse query params
+            let searchParams = new URLSearchParams(window.location.search);
+            let membershipId = searchParams.get('membershipId');
+            let membershipType = searchParams.get('membershipType');
+
+            // Fetch player stats
+            let isSeasonal = $('#seasonal-checkbox').is(':checked');
+
+            // Fill stats table
+            $('#stats-table tbody').empty();
+            addStat("Activities entered", 48);
+
+            // Fetch recent games
+
+            // Fill recent games table
+            $('#games-table tbody').empty();
+            let reportSample = {
+                instanceId: 123,
+                gamemode: 'Choc',
+                date: '23/01/2023',
+                map: 'Terre de rouille',
+                winScore: 100,
+                loseScore: 73,
+                personalKD: 2,
+                personalKDA: 2.5
+            }
+            addCarnageReport(reportSample);
+            
+            // Set up callbacks towards full carnage reports
+            $(document).on('click', '.btn-carnage', function () {
+                let instanceId = $(this).closest('tr').data()['instance_id'];
+                
+                let query = new URLSearchParams();
+                query.append("instance_id", instanceId);
+
+                window.location.href = '/carnageReport?' + query.toString();
+            })
+
+            {#let statNameCell = $('#stats-table td:contains("Activities entered"):first');#}
+        };
+
+        function addStat(statName, value) {
+            let template = `
+            <tr>
+                <td>${statName}</td>
+                <td>${value}</td>
+            </tr>
+            `;
+            $('#stats-table tbody').append(template);
+        }
+
+        function addCarnageReport(report) {
+            let template = `
+            <tr data-instance_id="${report.instanceId}">
+                <td>
+                    <button class="btn btn-primary btn-carnage">
+                        <p>${report.gamemode}</p>
+                        <p>${report.date}</p>
+                        <p>${report.map}</p>
+                    </button>
+                </td>
+                <td>
+                    <p>Score</p>
+                    <p>${report.winScore} - ${report.loseScore}</p>
+                </td>
+                <td>
+                    <p>KD</p>
+                    <p>${report.personalKD}</p>
+                </td>
+                <td>
+                    <p>KDA</p>
+                    <p>${report.personalKDA}</p>
+                </td>
+            </tr>
+            `;
+            $('#games-table tbody').append(template);
+        }
+
+    </script>
+{% endblock %}

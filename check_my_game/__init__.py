@@ -12,8 +12,17 @@ def create_app(test_config=None):
     cors = CORS(app)
 
     @app.route('/')
-    def hello():
+    def index():
         return render_template('index.html')
+    
+    @app.route('/player')
+    def player():
+        return render_template('player.html')
+
+    @app.route('/carnageReport')
+    def carnageReport():
+        return render_template('carnageReport.html')
 
     return app
 
+# flask --app check_my_game --debug run

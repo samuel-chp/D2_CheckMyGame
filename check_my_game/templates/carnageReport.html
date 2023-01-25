@@ -1,0 +1,149 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+
+    <div class="position-absolute top-0 end-0">
+        <p id="carnage-date"></p>
+        <p id="carnage-duration"></p>
+    </div>
+    
+    <div class=""container>
+        <div class="row">
+            <div class="col-sm-4">
+                <p>Alpha</p>
+                <p>150</p>
+            </div>
+            <div class="col-sm-4">
+                <p>Beta</p>
+                <p>73</p>
+            </div>
+        </div>
+    
+        <div>
+            <input type="range" name="chance of winning" min="0" max="100" value="63" disabled="true">
+        </div>
+    </div>
+    
+    <div class="container">
+        <h2>Alpha</h2>
+        <table class="table" id="alpha-scoreboard">
+            <thead>
+            <tr>
+                <th>Player</th>
+                <th>Score</th>
+                <th>Kills</th>
+                <th>Assists</th>
+                <th>Deaths</th>
+                <th>KD</th>
+                <th>KDA</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Breeky</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="container">
+        <h2>Beta</h2>
+        <table class="table" id="beta-scoreboard">
+            <thead>
+            <tr>
+                <th>Player</th>
+                <th>Score</th>
+                <th>Kills</th>
+                <th>Assists</th>
+                <th>Deaths</th>
+                <th>KD</th>
+                <th>KDA</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Defaros</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    
+{% endblock %}
+
+{% block content_script %}
+    <script>
+
+        window.onload = (event) => {
+            // Read query params
+            let searchParams = new URLSearchParams(window.location.search);
+            let instanceId = searchParams.get('instanceId');
+            
+            // Call api
+            
+            // Set up date and duration
+            $('#carnage-date').text("24/01/2023");
+            $('#carnage-duration').text("7min 36s");
+            
+            // Set up scoreboards
+            $('#alpha-scoreboard tbody').empty();
+            $('#beta-scoreboard tbody').empty();
+            
+            addPlayerRow("#alpha-scoreboard", {
+                membershipId: 123,
+                membershipType: 3,
+                characterId: 456,
+                displayName: "Defaros",
+                score: "15",
+                kills: 10,
+                assists: 6,
+                deaths: 5,
+                kd: 1.8,
+                kda: 2
+            });
+            
+            // Set up callbacks towards players
+            $(document).on('click', '.btn-player', function () {
+                let playerInfo = $(this).closest('tr').data();
+                
+                let query = new URLSearchParams();
+                $.each(playerInfo, function (info, value) {
+                    query.append(info, value);
+                })
+                
+                window.location.href = '/player?' + query.toString();
+            })
+        };
+        
+        function addPlayerRow(tableId, playerData){
+            let template = `
+            <tr data-membership_id="${playerData.membershipId}" data-membership_type="${playerData.membershipType}" data-character_id="${playerData.characterId}">
+                <td>
+                    <button class="btn btn-primary btn-player">
+                        ${playerData.displayName}
+                    </button>
+                </td>
+                <td>${playerData.score}</td>
+                <td>${playerData.kills}</td>
+                <td>${playerData.assists}</td>
+                <td>${playerData.deaths}</td>
+                <td>${playerData.kd}</td>
+                <td>${playerData.kda}</td>
+            </tr>
+            `;
+            $(`${tableId} tbody`).append(template);            
+        }
+        
+    </script>
+{% endblock %}

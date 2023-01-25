@@ -1,6 +1,62 @@
-﻿{%  extends "base.html" %}
+﻿{% extends "base.html" %}
 
 {% block content %}
-    <h1>Check My Game</h1>
-    <input id="player-search" placeholder="Search a player...">
-{%  endblock %}
+    <div class="container">
+        <h1 class="display-1">Check My Game</h1>
+        <input id="player-search-input" placeholder="Search a player...">
+    </div>
+
+    <div id="search-alert" class="alert alert-warning alert-dismissible collapse" role="alert">
+        An error has occurred when contacting BungieAPI.
+        <button type="button" id="search-alert-close-btn" class="btn-close alert-close" aria-label="Close"></button>
+    </div>
+    
+{% endblock %}
+
+{% block content_script %}
+    <script>
+
+        window.onload = (event) => {
+            // on close alert
+            $(document).on('click', '.alert-close', function () {
+                $(this).parent().hide();
+            })
+            
+            // on search player
+            $('#player-search-input').keydown(function (event) {
+                if (event.which === 13) {
+                    searchPlayer($(this).val());
+                }
+            });
+        };
+        
+        function showAlert(message){
+            const alert = $('#search-alert');
+            alert.textContent = message;
+            
+            alert.clearQueue();
+            alert.show();
+            alert.delay(5000).fadeOut(800);
+        }
+
+        function searchPlayer(playerName) {
+            const [displayName, displayNameCode] = playerName.split('#');
+            bungieAPI.searchPlayer(displayName, displayNameCode)
+                .done(function (result) {
+                    if (result["ErrorCode"] == 1) {
+                        // redirect towards player page
+                        let query = new URLSearchParams();
+                        query.append("membership_id", result["Response"][0]["membershipId"]);
+                        query.append("membership_type", result["Response"][0]["membershipType"]);
+                        window.location.href = '/player?' + query.toString();
+                    } else {
+                        console.log(`${playerName} not found.`);
+                    }
+                })
+                .fail(function () {
+                    console.log(`Error when searching player.`);
+                    showAlert("An error has occurred when contacting BungieAPI.");
+                });
+        }
+    </script>
+{% endblock %}
