@@ -32,31 +32,29 @@
         
         function showAlert(message){
             const alert = $('#search-alert');
-            alert.textContent = message;
+            alert.text(message);
             
             alert.clearQueue();
             alert.show();
             alert.delay(5000).fadeOut(800);
         }
 
-        function searchPlayer(playerName) {
+        async function searchPlayer(playerName) {
             const [displayName, displayNameCode] = playerName.split('#');
-            bungieAPI.searchPlayer(displayName, displayNameCode)
-                .done(function (result) {
-                    if (result["ErrorCode"] == 1) {
-                        // redirect towards player page
-                        let query = new URLSearchParams();
-                        query.append("membership_id", result["Response"][0]["membershipId"]);
-                        query.append("membership_type", result["Response"][0]["membershipType"]);
-                        window.location.href = '/player?' + query.toString();
-                    } else {
-                        console.log(`${playerName} not found.`);
-                    }
-                })
-                .fail(function () {
-                    console.log(`Error when searching player.`);
-                    showAlert("An error has occurred when contacting BungieAPI.");
-                });
+            let result = await bungieAPI.searchPlayer(displayName, displayNameCode);
+            if (result) {
+                if (result["ErrorCode"] !== 1 || result["Response"].length == 0) {
+                    showAlert(`Player ${playerName} not found.`);
+                }
+                else
+                {
+                    // redirect towards player page
+                    let query = new URLSearchParams();
+                    query.append("membership_id", result["Response"][0]["membershipId"]);
+                    query.append("membership_type", result["Response"][0]["membershipType"]);
+                    window.location.href = '/player?' + query.toString();
+                }
+            }
         }
     </script>
 {% endblock %}

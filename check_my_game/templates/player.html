@@ -4,36 +4,65 @@
 
     <div class="" container>
         <h1>Breeky</h1>
+        <select name="character" id="character-select">
+            <option value="a">Character 1</option>
+            <option value="b">Character 2</option>
+            <option value="c">Character 3</option>
+        </select>
     </div>
 
     <div class="container">
         <h2>Stats</h2>
-        <input type="checkbox" id="seasonal-checkbox">
+        
+        <select name="period" id="period-select">
+            <option value="allTime">All time</option>
+            <option value="seasonal">Seasonal</option>
+            <option value="weekly">Weekly</option>
+        </select>
+        
+        <select name="gamemode" id="gamemode-select">
+            <option value="all">All</option>
+            <option value="competitive">All competitive</option>
+            <option value="osiris">Osiris</option>
+        </select>
+        
         <table class="table" id="stats-table">
-            <thead></thead>
+            <thead>
+            <tr>
+                <th></th>
+                <th>Total</th>
+                <th>Per game</th>
+            </tr>
+            </thead>
             <tbody>
             <tr>
                 <td>Activities entered</td>
+                <td>-</td>
                 <td>-</td>
             </tr>
             <tr>
                 <td>Kills</td>
                 <td>-</td>
+                <td>-</td>
             </tr>
             <tr>
                 <td>Assists</td>
+                <td>-</td>
                 <td>-</td>
             </tr>
             <tr>
                 <td>Deaths</td>
                 <td>-</td>
+                <td>-</td>
             </tr>
             <tr>
                 <td>KD</td>
                 <td>-</td>
+                <td>-</td>
             </tr>
             <tr>
                 <td>KDA</td>
+                <td>-</td>
                 <td>-</td>
             </tr>
             </tbody>
@@ -72,60 +101,50 @@
 
 {% block content_script %}
     <script>
+    
+        var playerStats;
 
         window.onload = (event) => {
             // Parse query params
             let searchParams = new URLSearchParams(window.location.search);
-            let membershipId = searchParams.get('membershipId');
-            let membershipType = searchParams.get('membershipType');
-
-            // Fetch player stats
-            let isSeasonal = $('#seasonal-checkbox').is(':checked');
-
-            // Fill stats table
-            $('#stats-table tbody').empty();
-            addStat("Activities entered", 48);
-
-            // Fetch recent games
-
-            // Fill recent games table
-            $('#games-table tbody').empty();
-            let reportSample = {
-                instanceId: 123,
-                gamemode: 'Choc',
-                date: '23/01/2023',
-                map: 'Terre de rouille',
-                winScore: 100,
-                loseScore: 73,
-                personalKD: 2,
-                personalKDA: 2.5
-            }
-            addCarnageReport(reportSample);
+            let membershipId = searchParams.get('membership_id');
+            let membershipType = searchParams.get('membership_type');
             
-            // Set up callbacks towards full carnage reports
-            $(document).on('click', '.btn-carnage', function () {
-                let instanceId = $(this).closest('tr').data()['instance_id'];
-                
-                let query = new URLSearchParams();
-                query.append("instance_id", instanceId);
-
-                window.location.href = '/carnageReport?' + query.toString();
-            })
-
-            {#let statNameCell = $('#stats-table td:contains("Activities entered"):first');#}
+            initPage(membershipId, membershipType);
         };
+        
+        async function initPage(membershipId, membershipType) {
+            // Fetch profile for characterIds
+            await fetchCharacters(membershipId, membershipType);
+            
+            // Get characters id
+            const characterIds = [...document.getElementById("character-select").options].map(o => o.value);
+            
+            // Fetch all player stats
+            playerStats = await new PlayerStats(membershipId, membershipType, characterIds, [5, 70, 69, 84]);
+            
+            {#let statNameCell = $('#stats-table td:contains("Activities entered"):first');#}
+        }
+        
+        async function fetchCharacters(membershipId, membershipType){
+            const result = await bungieAPI.fetchPlayerProfile(membershipId, membershipType);
+            if (result && result["ErrorCode"] === 1) {
+                fillCharactersSelect(result["Response"]["characters"]["data"]);
+            }
+        }
 
-        function addStat(statName, value) {
+        function addStatToTable(statName, valueTotal, valuePGA = "-") {
             let template = `
             <tr>
                 <td>${statName}</td>
-                <td>${value}</td>
+                <td>${valueTotal}</td>
+                <td>${valuePGA}</td>
             </tr>
             `;
             $('#stats-table tbody').append(template);
         }
 
-        function addCarnageReport(report) {
+        function addCarnageReportToTable(report) {
             let template = `
             <tr data-instance_id="${report.instanceId}">
                 <td>
@@ -150,6 +169,37 @@
             </tr>
             `;
             $('#games-table tbody').append(template);
+        }
+
+        function fillStatsTable(api_result) {
+            $('#stats-table tbody').empty();
+
+            addStat("KD", +api_result["Response"]["allPvP"]["allTime"]["killsDeathsRatio"]["basic"]["value"].toFixed(2));
+            addStat("KDA", +api_result["Response"]["allPvP"]["allTime"]["killsDeathsAssists"]["basic"]["value"].toFixed(2));
+            addStat("Kills",
+                +api_result["Response"]["allPvP"]["allTime"]["kills"]["basic"]["value"].toFixed(2),
+                +api_result["Response"]["allPvP"]["allTime"]["kills"]["pga"]["value"].toFixed(2));
+            addStat("Assists",
+                +api_result["Response"]["allPvP"]["allTime"]["assists"]["basic"]["value"].toFixed(2),
+                +api_result["Response"]["allPvP"]["allTime"]["assists"]["pga"]["value"].toFixed(2));
+            addStat("Deaths",
+                +api_result["Response"]["allPvP"]["allTime"]["deaths"]["basic"]["value"].toFixed(2),
+                +api_result["Response"]["allPvP"]["allTime"]["deaths"]["pga"]["value"].toFixed(2));
+            addStat("Activities entered", +api_result["Response"]["allPvP"]["allTime"]["activitiesEntered"]["basic"]["value"].toFixed(2));
+            addStat("Activities won", +api_result["Response"]["allPvP"]["allTime"]["activitiesWon"]["basic"]["value"].toFixed(2));
+            addStat("Time played",
+                +api_result["Response"]["allPvP"]["allTime"]["secondsPlayed"]["basic"]["value"].toFixed(2),
+                +api_result["Response"]["allPvP"]["allTime"]["secondsPlayed"]["pga"]["value"].toFixed(2));
+        }
+        
+        function fillCharactersSelect(charactersData){
+            let i = 1;
+            for (let characterId in charactersData){
+                let option = $(`#character-select option:nth-of-type(${i})`);
+                option.text(`${bungieAPI.getClassTypeStr(charactersData[characterId]["classType"])}   ${charactersData[characterId]["light"]}`);
+                option.attr("value", characterId);
+                ++i;
+            }
         }
 
     </script>
