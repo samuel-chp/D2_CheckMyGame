@@ -110,14 +110,15 @@ class PlayerStats {
             this.allTime[characterId] = {};
             this.daily[characterId] = {};
         })
-
-        // Populate data
-        characterIds.forEach(characterId => {
-            this._populateStats(characterId);
-        });
+    }
+    
+    async populateStats(){
+        for (const characterId of this.characterIds){
+            await this._populateCharacterStats(characterId);
+        }
     }
 
-    async _populateStats(characterId) {
+    async _populateCharacterStats(characterId) {
         let playerStats = this;
 
         // All-time
@@ -191,10 +192,7 @@ class PlayerStats {
     getAllTime(characterId, gamemode) {
         // Return dict:
         // {
-        //     statName: {
-        //         'total': 10,
-        //         'pga': 5
-        //     }
+        //     statName:  value
         // }
         return this.allTime[characterId][gamemode];
     }

@@ -9226,7 +9226,9 @@
                     }
                 }
             ]
-        }
+        },
+        "trialsSurvival": {},
+        "trialsCountdown": {}
     },
     "ErrorCode": 1,
     "ThrottleSeconds": 0,

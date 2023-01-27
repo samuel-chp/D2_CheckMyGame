@@ -4,7 +4,7 @@
 
     <div class="" container>
         <h1>Breeky</h1>
-        <select name="character" id="character-select">
+        <select name="character" id="character-select" onchange="fillStatsTable()">
             <option value="a">Character 1</option>
             <option value="b">Character 2</option>
             <option value="c">Character 3</option>
@@ -14,16 +14,17 @@
     <div class="container">
         <h2>Stats</h2>
         
-        <select name="period" id="period-select">
+        <select name="period" id="period-select" onchange="fillStatsTable()">
             <option value="allTime">All time</option>
             <option value="seasonal">Seasonal</option>
             <option value="weekly">Weekly</option>
         </select>
         
-        <select name="gamemode" id="gamemode-select">
-            <option value="all">All</option>
-            <option value="competitive">All competitive</option>
-            <option value="osiris">Osiris</option>
+        <select name="gamemode" id="gamemode-select" onchange="fillStatsTable()">
+            <option value="allPvP">All</option>
+            <option value="pvpQuickplay">Quickplay</option>
+            <option value="pvpCompetitive">Competitive</option>
+            <option value="trials_of_osiris">Osiris</option>
         </select>
         
         <table class="table" id="stats-table">
@@ -103,6 +104,7 @@
     <script>
     
         var playerStats;
+        var test;
 
         window.onload = (event) => {
             // Parse query params
@@ -111,6 +113,9 @@
             let membershipType = searchParams.get('membership_type');
             
             initPage(membershipId, membershipType);
+            
+            // Callbacks on character select
+            
         };
         
         async function initPage(membershipId, membershipType) {
@@ -120,8 +125,11 @@
             // Get characters id
             const characterIds = [...document.getElementById("character-select").options].map(o => o.value);
             
-            // Fetch all player stats
-            playerStats = await new PlayerStats(membershipId, membershipType, characterIds, [5, 70, 69, 84]);
+            // Fetch all player stats, link GAMEMODES NUMBER TO THE SELECT HTML
+            playerStats = new PlayerStats(membershipId, membershipType, characterIds, [5, 70, 69, 84]);
+            await playerStats.populateStats();
+            
+            fillStatsTable();
             
             {#let statNameCell = $('#stats-table td:contains("Activities entered"):first');#}
         }
@@ -171,25 +179,32 @@
             $('#games-table tbody').append(template);
         }
 
-        function fillStatsTable(api_result) {
+        function fillStatsTable() {
+            // Get selected character
+            const characterId = $('#character-select option:selected').val();
+            
+            // Get selected gamemode
+            const gamemode = $('#gamemode-select option:selected').val();
+            
+            // Get stats
+            let stats = {};
+            const period = $('#period-select option:selected').val();
+            if (period === "allTime"){
+                stats = playerStats.getAllTime(characterId, gamemode);
+            } else if (period === "seasonal"){
+                stats = playerStats.getSeasonal(characterId, gamemode);
+            } else if (period === "weekly"){
+                stats = playerStats.getWeekly(characterId, gamemode);
+            }
+            
+            // Empty table rows
             $('#stats-table tbody').empty();
 
-            addStat("KD", +api_result["Response"]["allPvP"]["allTime"]["killsDeathsRatio"]["basic"]["value"].toFixed(2));
-            addStat("KDA", +api_result["Response"]["allPvP"]["allTime"]["killsDeathsAssists"]["basic"]["value"].toFixed(2));
-            addStat("Kills",
-                +api_result["Response"]["allPvP"]["allTime"]["kills"]["basic"]["value"].toFixed(2),
-                +api_result["Response"]["allPvP"]["allTime"]["kills"]["pga"]["value"].toFixed(2));
-            addStat("Assists",
-                +api_result["Response"]["allPvP"]["allTime"]["assists"]["basic"]["value"].toFixed(2),
-                +api_result["Response"]["allPvP"]["allTime"]["assists"]["pga"]["value"].toFixed(2));
-            addStat("Deaths",
-                +api_result["Response"]["allPvP"]["allTime"]["deaths"]["basic"]["value"].toFixed(2),
-                +api_result["Response"]["allPvP"]["allTime"]["deaths"]["pga"]["value"].toFixed(2));
-            addStat("Activities entered", +api_result["Response"]["allPvP"]["allTime"]["activitiesEntered"]["basic"]["value"].toFixed(2));
-            addStat("Activities won", +api_result["Response"]["allPvP"]["allTime"]["activitiesWon"]["basic"]["value"].toFixed(2));
-            addStat("Time played",
-                +api_result["Response"]["allPvP"]["allTime"]["secondsPlayed"]["basic"]["value"].toFixed(2),
-                +api_result["Response"]["allPvP"]["allTime"]["secondsPlayed"]["pga"]["value"].toFixed(2));
+            for (statName in stats){
+                addStatToTable(statName, stats[statName], stats[statName] / stats["activitiesEntered"]);
+            }
+            
+            {#addStat("KD", +api_result["Response"]["allPvP"]["allTime"]["killsDeathsRatio"]["basic"]["value"].toFixed(2));#}
         }
         
         function fillCharactersSelect(charactersData){
