@@ -48,6 +48,7 @@
                 }
                 else
                 {
+                    // TODO: handle multiple membership types
                     // redirect towards player page
                     let query = new URLSearchParams();
                     query.append("membership_id", result["Response"][0]["membershipId"]);

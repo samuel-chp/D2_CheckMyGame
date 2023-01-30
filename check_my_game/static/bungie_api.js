@@ -2,9 +2,34 @@
     constructor(secret_key) {
         this.secret_key = secret_key;
         this.endpoint = "https://www.bungie.net";
+        
+        // Tokens and rate for bungie api
+        this.rate = 20  // Max number of calls per second, Bungie tells us it's 25 but to be sure...
+        this.maxTokens = 20
+        this.tokens = this.maxTokens;
+        this.lastTokenUpdate = (new Date()).getTime();
+    }
+
+    async waitForToken() {
+        while (this.tokens < 1) {
+            this.addNewTokens();
+            await sleep(100);
+        }
+        this.tokens -= 1
+    }
+
+    addNewTokens() {
+        const now = (new Date()).getTime();
+        const timeSinceUpdate = now - this.lastTokenUpdate;
+        const newTokens = Math.floor(timeSinceUpdate * this.rate);
+        if (this.tokens + newTokens >= 1) {
+            this.tokens = Math.min(this.tokens + newTokens, this.maxTokens);
+            this.lastTokenUpdate = now;
+        }
     }
 
     async searchPlayer(displayName, displayNameCode) {
+        await this.waitForToken();
         try {
             return await $.ajax({
                     url: new URL('Platform/Destiny2/SearchDestinyPlayerByBungieName/all/', this.endpoint).href,
@@ -23,6 +48,8 @@
     }
 
     async fetchPlayerProfile(membershipId, membershipType) {
+        await this.waitForToken();
+        
         let targetURL = new URL(`Platform/Destiny2/${membershipType}/Profile/${membershipId}/`, this.endpoint);
         targetURL.searchParams.append("components", "Characters");
 
@@ -47,6 +74,8 @@
                            groups = "",
                            modes = "",
                            periodType = "") {
+        await this.waitForToken();
+        
         let targetURL = new URL(`Platform/Destiny2/${membershipType}/Account/${membershipId}/Character/${characterId}/Stats/`, this.endpoint);
         {
             if (daystart !== "") {
@@ -90,6 +119,8 @@
                                mode = 5,
                                page = 0,
                                count = 250) {
+        await this.waitForToken();
+        
         // Clamp to max accepted by the API
         count = Math.min(count, 250);
 
@@ -117,6 +148,8 @@
     }
 
     async fetchEntityDefinition(entityType, hashIdentifier) {
+        await this.waitForToken();
+        
         let targetURL = new URL(`Platform/Destiny2/Manifest/${entityType}/${hashIdentifier}`, this.endpoint);
 
         try {
@@ -138,6 +171,7 @@
     }
 
     async fetchMapDefinition(referenceId) {
+        await this.waitForToken();
         return await this.fetchEntityDefinition("DestinyActivityDefinition", referenceId);
     }
 
@@ -284,12 +318,15 @@ class PlayerHistory {
      */
     async _populateCharacterFromActivities(characterId) {
         // const instance = this;
+        
+        // Call Bungie API
+        let tasks = [];
+        for (let i=0; i<100; i++){
+            tasks.push(bungieAPI.fetchActivityHistory(this.membershipId, this.membershipType, characterId, 5, i));
+        }
+        let results = await Promise.all(tasks); // Increase speed
 
-        let page = 0
-        let result;
-        do {
-            result = await bungieAPI.fetchActivityHistory(this.membershipId, this.membershipType, characterId, 5, page);
-
+        for (const result of results) {
             // Check empty response on page 0
             if (Object.keys(result["Response"]).length === 0) {
                 break;
@@ -323,10 +360,7 @@ class PlayerHistory {
                 };
                 this.activities[characterId].push(activityData);
             }
-
-            // Next page for api
-            ++page;
-        } while (Object.keys(result["Response"]).length > 0);
+        }
     }
 
     getEmptyStatsDict() {
@@ -409,6 +443,10 @@ function dateDiffInDays(a, b) {
 
 function formatDateToAPIFormat(date) {
     return date.toISOString().split('T')[0];
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 
