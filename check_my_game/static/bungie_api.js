@@ -84,6 +84,38 @@
         }
     }
 
+    async fetchActivityHistory(membershipId,
+                               membershipType,
+                               characterId,
+                               mode = 5,
+                               page = 0,
+                               count = 250) {
+        // Clamp to max accepted by the API
+        count = Math.min(count, 250);
+        
+        let targetURL = new URL(`Platform/Destiny2/${membershipType}/Account/${membershipId}/Character/${characterId}/Stats/Activities`, this.endpoint);
+        targetURL.searchParams.append("mode", mode);
+        targetURL.searchParams.append("page", page);
+        targetURL.searchParams.append("count", count);
+
+        try {
+            return await $.ajax({
+                url: targetURL.href,
+                type: "GET",
+                headers: {'X-API-Key': this.secret_key},
+                datatype: 'json',
+                success: function (result) {
+                    // console.log(result);
+                },
+                error: function (error) {
+                    // console.log(error);
+                }
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     getClassTypeStr(classType) {
         if (classType === 0) {
             return "Titan";
@@ -102,6 +134,7 @@ class PlayerStats {
         this.membershipType = membershipType;
         this.characterIds = characterIds;
         this.gamemodes = gamemodes;
+        this.seasonStartDate = new Date("2022-12-06");
 
         // Init storage
         this.allTime = {}
@@ -112,13 +145,13 @@ class PlayerStats {
         })
     }
     
-    async populateStats(){
+    async populateHistoricalStats(){
         for (const characterId of this.characterIds){
-            await this._populateCharacterStats(characterId);
+            await this._populateHistoricalCharacterStats(characterId);
         }
     }
 
-    async _populateCharacterStats(characterId) {
+    async _populateHistoricalCharacterStats(characterId) {
         let playerStats = this;
 
         // All-time
@@ -188,42 +221,103 @@ class PlayerStats {
             }
         }
     }
-
-    getAllTime(characterId, gamemode) {
-        // Return dict:
-        // {
-        //     statName:  value
-        // }
-        return this.allTime[characterId][gamemode];
-    }
-
-    getSeasonal(characterId, gamemode) {
-        // Sum all values
-        let dailyStats = this.daily[characterId][gamemode];
-        let result = {};
-        
-        // Aggregate
-        for (const dayStats of dailyStats){
-            for (const statName in dayStats["values"]){
-                if (!(statName in result)){
-                    result[statName] = 0;
-                }
-                result[statName] += dayStats["values"][statName];
-            }
+    
+    async populateStatsFromActivities(){
+        for (const characterId of this.characterIds){
+            await this._populateCharacterStatsFromActivities(characterId);
         }
-        
-        return result;
     }
+    
+    async _populateCharacterStatsFromActivities(characterId) {
+        const playerStats = this;
+        
+        let page = 0
+        let result;
+        let dailyStats = {}; // { gamemode: {period: Date, values: getEmptyStatsDict() }
+        do {
+            result = await bungieAPI.fetchActivityHistory(this.membershipId, this.membershipType, characterId, 5, page);
+            // playerStats.allTime[characterId][gamemode][statName] =
+            // { period: Date, values: {statName: value} }
+            
+            // Check empty response on page 0
+            if (Object.keys(result["Response"]).length === 0){
+                break;
+            }
+            
+            for (const activity of result["Response"]["activities"]) {          
+                // Not optimal - duplicate data
+                for (const gamemode of activity["activityDetails"]["modes"]) {
+                    const day = new Date(activity["period"]);
 
-    getWeekly(characterId, gamemode) {
-        // Sum values from last week
+                    // Handle API gamemode error
+                    if ((gamemode === 0) || (activity["activityDetails"]["mode"] === 0)) {
+                        continue;
+                    }
+
+                    // Test
+                    let lastWeek = new Date();
+                    lastWeek.setDate(lastWeek.getDate() - 7);
+                    if ((gamemode === 84) && (dateDiffInDays(lastWeek, day) > 0)) {
+                        console.log(activity);
+                    }
+
+                    // Ensure 'gamemode' key creation
+                    if (!(gamemode in playerStats.daily[characterId])) {
+                        playerStats.daily[characterId][gamemode] = [];
+                    }
+                    if (!(gamemode in dailyStats)) {
+                        dailyStats[gamemode] = {period: day, values: playerStats.getEmptyStatsDict()};
+                    }
+
+                    // Check day
+                    if (dateDiffInDays(day, dailyStats[gamemode]["period"]) > 0) {
+                        // Append currentDayStats
+                        playerStats.daily[characterId][gamemode].push(dailyStats[gamemode]);
+                        // reset dailyStats with new day
+                        dailyStats[gamemode] = {period: day, values: playerStats.getEmptyStatsDict()};
+                    }
+
+                    dailyStats[gamemode]["values"]["activitiesEntered"] += 1;
+                    if (activity["values"]["standing"]["basic"]["value"] > 0) {
+                        dailyStats[gamemode]["values"]["activitiesWon"] += 1;
+                    }
+                    dailyStats[gamemode]["values"]["kills"] += activity["values"]["kills"]["basic"]["value"];
+                    dailyStats[gamemode]["values"]["assists"] += activity["values"]["assists"]["basic"]["value"];
+                    dailyStats[gamemode]["values"]["deaths"] += activity["values"]["deaths"]["basic"]["value"];
+                    dailyStats[gamemode]["values"]["secondsPlayed"] += activity["values"]["timePlayedSeconds"]["basic"]["value"];
+                    dailyStats[gamemode]["values"]["score"] += activity["values"]["score"]["basic"]["value"];
+                }
+            }
+
+            ++page;
+        } while (Object.keys(result["Response"]).length > 0);
+        
+        // Push remaining daily stats
+        for (const gamemode in dailyStats){
+            playerStats.daily[characterId][gamemode].push(dailyStats[gamemode]);
+        }
+    }
+    
+    getEmptyStatsDict() {
+        return {
+            "activitiesEntered": 0,
+            "activitiesWon": 0,
+            "kills": 0,
+            "assists": 0,
+            "deaths": 0,
+            "secondsPlayed": 0,
+            "score": 0,
+        }
+    }
+    
+    _aggregateStats(characterId, gamemode, startDate, endDate){
+        // Sum values between start date and end date
         let dailyStats = this.daily[characterId][gamemode];
         let result = {};
-        let today = new Date();
         
         // Aggregate
         for (const dayStats of dailyStats){
-            if (dateDiffInDays(dayStats["period"], today) > 7){
+            if ((dateDiffInDays(startDate, dayStats["period"]) < 0) || (dateDiffInDays(dayStats["period"], endDate) < 0)){
                 continue;
             }
             
@@ -236,6 +330,25 @@ class PlayerStats {
         }
         
         return result;
+    }
+
+    getAllTime(characterId, gamemode) {
+        // Return dict:
+        // {
+        //     statName:  value
+        // }
+        // return this.allTime[characterId][gamemode];
+        return this._aggregateStats(characterId, gamemode, new Date("2015-01-01"), new Date());
+    }
+
+    getSeasonal(characterId, gamemode) {
+        return this._aggregateStats(characterId, gamemode, this.seasonStartDate, new Date());
+    }
+
+    getWeekly(characterId, gamemode) {
+        let lastWeek = new Date();
+        lastWeek.setDate(lastWeek.getDate() - 7);
+        return this._aggregateStats(characterId, gamemode, lastWeek, new Date());
     }
 }
 

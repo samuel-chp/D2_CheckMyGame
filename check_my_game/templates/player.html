@@ -21,10 +21,10 @@
         </select>
         
         <select name="gamemode" id="gamemode-select" onchange="fillStatsTable()">
-            <option value="allPvP">All</option>
-            <option value="pvpQuickplay">Quickplay</option>
-            <option value="pvpCompetitive">Competitive</option>
-            <option value="trials_of_osiris">Osiris</option>
+            <option value="5">All</option>
+            <option value="70">Quickplay</option>
+            <option value="69">Competitive</option>
+            <option value="84">Osiris</option>
         </select>
         
         <table class="table" id="stats-table">
@@ -127,7 +127,7 @@
             
             // Fetch all player stats, link GAMEMODES NUMBER TO THE SELECT HTML
             playerStats = new PlayerStats(membershipId, membershipType, characterIds, [5, 70, 69, 84]);
-            await playerStats.populateStats();
+            await playerStats.populateStatsFromActivities();
             
             fillStatsTable();
             
@@ -201,7 +201,7 @@
             $('#stats-table tbody').empty();
 
             for (statName in stats){
-                addStatToTable(statName, stats[statName], stats[statName] / stats["activitiesEntered"]);
+                addStatToTable(statName, stats[statName].toFixed(2), (stats[statName] / stats["activitiesEntered"]).toFixed(2));
             }
             
             {#addStat("KD", +api_result["Response"]["allPvP"]["allTime"]["killsDeathsRatio"]["basic"]["value"].toFixed(2));#}
