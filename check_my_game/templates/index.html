@@ -52,6 +52,8 @@
                     let query = new URLSearchParams();
                     query.append("membership_id", result["Response"][0]["membershipId"]);
                     query.append("membership_type", result["Response"][0]["membershipType"]);
+                    query.append("display_name", displayName);
+                    query.append("display_name_code", displayNameCode);
                     window.location.href = '/player?' + query.toString();
                 }
             }

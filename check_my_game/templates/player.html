@@ -3,8 +3,8 @@
 {% block content %}
 
     <div class="" container>
-        <h1>Breeky</h1>
-        <select name="character" id="character-select" onchange="fillStatsTable()">
+        <h1 id="guardian-name">Breeky</h1>
+        <select name="character" id="character-select" onchange="refreshTables()">
             <option value="a">Character 1</option>
             <option value="b">Character 2</option>
             <option value="c">Character 3</option>
@@ -71,8 +71,16 @@
     </div>
 
     <div class="container">
-        <h2>Recent Games</h2>
-        <table class="table" id="games-table">
+        <h2>Last Games</h2>
+        
+        <select name="gamemode-carnage" id="gamemode-carnage-select" onchange="fillCarnageReportTable()">
+            <option value="5">All</option>
+            <option value="70">Quickplay</option>
+            <option value="69">Competitive</option>
+            <option value="84">Osiris</option>
+        </select>
+        
+        <table class="table" id="carnage-reports-table">
             <thead></thead>
             <tbody>
             <tr>
@@ -103,22 +111,26 @@
 {% block content_script %}
     <script>
     
-        var playerStats;
-        var test;
+        var playerHistory;
 
         window.onload = (event) => {
             // Parse query params
             let searchParams = new URLSearchParams(window.location.search);
             let membershipId = searchParams.get('membership_id');
             let membershipType = searchParams.get('membership_type');
+            let displayName = searchParams.get('display_name');
+            let displayNameCode = searchParams.get('display_name_code');
             
-            initPage(membershipId, membershipType);
+            initPage(membershipId, membershipType, displayName, displayNameCode);
             
             // Callbacks on character select
             
         };
         
-        async function initPage(membershipId, membershipType) {
+        async function initPage(membershipId, membershipType, displayName, displayNameCode) {
+            // Set up name
+            $('#guardian-name').text(displayName + '#' + displayNameCode);
+            
             // Fetch profile for characterIds
             await fetchCharacters(membershipId, membershipType);
             
@@ -126,12 +138,22 @@
             const characterIds = [...document.getElementById("character-select").options].map(o => o.value);
             
             // Fetch all player stats, link GAMEMODES NUMBER TO THE SELECT HTML
-            playerStats = new PlayerStats(membershipId, membershipType, characterIds, [5, 70, 69, 84]);
-            await playerStats.populateStatsFromActivities();
+            playerHistory = new PlayerHistory(membershipId, membershipType, characterIds, [5, 70, 69, 84]);
+            await playerHistory.populateFromActivities();
             
-            fillStatsTable();
+            refreshTables();
             
             {#let statNameCell = $('#stats-table td:contains("Activities entered"):first');#}
+        }
+        
+        function fillCharactersSelect(charactersData){
+            let i = 1;
+            for (let characterId in charactersData){
+                let option = $(`#character-select option:nth-of-type(${i})`);
+                option.text(`${bungieAPI.getClassTypeStr(charactersData[characterId]["classType"])}   ${charactersData[characterId]["light"]}`);
+                option.attr("value", characterId);
+                ++i;
+            }
         }
         
         async function fetchCharacters(membershipId, membershipType){
@@ -140,43 +162,22 @@
                 fillCharactersSelect(result["Response"]["characters"]["data"]);
             }
         }
+        
+        function refreshTables() {
+            fillStatsTable();
+            fillCarnageReportTable();
+        }
 
-        function addStatToTable(statName, valueTotal, valuePGA = "-") {
+        function addStatToTable(statName, valueTotal, valuePGA = 0) {
+            valueTotal = isNaN(valueTotal) ? 0 : valueTotal;
             let template = `
             <tr>
                 <td>${statName}</td>
-                <td>${valueTotal}</td>
-                <td>${valuePGA}</td>
+                <td>${+valueTotal.toFixed(2)}</td>
+                <td>${(valuePGA > 0) ? +valuePGA.toFixed(2) : "-"}</td>
             </tr>
             `;
             $('#stats-table tbody').append(template);
-        }
-
-        function addCarnageReportToTable(report) {
-            let template = `
-            <tr data-instance_id="${report.instanceId}">
-                <td>
-                    <button class="btn btn-primary btn-carnage">
-                        <p>${report.gamemode}</p>
-                        <p>${report.date}</p>
-                        <p>${report.map}</p>
-                    </button>
-                </td>
-                <td>
-                    <p>Score</p>
-                    <p>${report.winScore} - ${report.loseScore}</p>
-                </td>
-                <td>
-                    <p>KD</p>
-                    <p>${report.personalKD}</p>
-                </td>
-                <td>
-                    <p>KDA</p>
-                    <p>${report.personalKDA}</p>
-                </td>
-            </tr>
-            `;
-            $('#games-table tbody').append(template);
         }
 
         function fillStatsTable() {
@@ -190,30 +191,99 @@
             let stats = {};
             const period = $('#period-select option:selected').val();
             if (period === "allTime"){
-                stats = playerStats.getAllTime(characterId, gamemode);
+                stats = playerHistory.getStatsAllTime(characterId, gamemode);
             } else if (period === "seasonal"){
-                stats = playerStats.getSeasonal(characterId, gamemode);
+                stats = playerHistory.getStatsSeasonal(characterId, gamemode);
             } else if (period === "weekly"){
-                stats = playerStats.getWeekly(characterId, gamemode);
+                stats = playerHistory.getStatsWeekly(characterId, gamemode);
             }
             
             // Empty table rows
             $('#stats-table tbody').empty();
 
-            for (statName in stats){
-                addStatToTable(statName, stats[statName].toFixed(2), (stats[statName] / stats["activitiesEntered"]).toFixed(2));
-            }
+            // Fill table
+            addStatToTable("K/D", stats["kills"] / stats["deaths"]);
+            addStatToTable("KA/D", (stats["kills"] + stats["assists"]) / stats["deaths"]);
+            addStatToTable("Hours played", stats["secondsPlayed"] / 3600, (stats["secondsPlayed"] / stats["activitiesEntered"]) / 3600);
+            addStatToTable("Activities entered", stats["activitiesEntered"]);
+            addStatToTable("Activities won", stats["activitiesWon"]);
+            addStatToTable("Score", stats["score"], stats["score"] / stats["activitiesEntered"]);
+            addStatToTable("Kills", stats["kills"], stats["kills"] / stats["activitiesEntered"]);
+            addStatToTable("Assits", stats["assists"], stats["assists"] / stats["activitiesEntered"]);
+            addStatToTable("Deaths", stats["deaths"], stats["deaths"] / stats["activitiesEntered"]);
             
             {#addStat("KD", +api_result["Response"]["allPvP"]["allTime"]["killsDeathsRatio"]["basic"]["value"].toFixed(2));#}
         }
         
-        function fillCharactersSelect(charactersData){
-            let i = 1;
-            for (let characterId in charactersData){
-                let option = $(`#character-select option:nth-of-type(${i})`);
-                option.text(`${bungieAPI.getClassTypeStr(charactersData[characterId]["classType"])}   ${charactersData[characterId]["light"]}`);
-                option.attr("value", characterId);
-                ++i;
+        function addCarnageReportToTable(report) {
+            let isoDate = report.date.toISOString();
+            const ymd = isoDate.split('T')[0];
+            const hm = isoDate.split('T')[1].split(':')[0] + ':' + isoDate.split('T')[1].split(':')[1];
+            
+            let template = `
+            <tr data-instance_id="${report.instanceId}">
+                <td>
+                    <button class="btn btn-primary btn-carnage">
+                        <p>${report.gamemode}</p>
+                        <p>${ymd} <br> ${hm}</p>
+                        <p>${report.map}</p>
+                    </button>
+                </td>
+                <td>
+                    <p>Score</p>
+                    <p>${report.winScore} - ${report.loseScore}</p>
+                </td>
+                <td>
+                    <p>KD</p>
+                    <p>${(report.personalKD > 0 && isFinite(report.personalKD))  ? +report.personalKD.toFixed(2) : 0}</p>
+                </td>
+                <td>
+                    <p>KDA</p>
+                    <p>${(report.personalKAD > 0 && isFinite(report.personalKAD)) ? +report.personalKAD.toFixed(2) : 0}</p>
+                </td>
+            </tr>
+            `;
+            $('#carnage-reports-table tbody').append(template);
+        }
+        
+        function fillCarnageReportTable() {
+            // Get selected character
+            const characterId = $('#character-select option:selected').val();
+            
+            // Get selected gamemode
+            const gamemode = parseInt($('#gamemode-carnage-select option:selected').val());
+            
+            // Get number of activities to load
+            const n = 10;
+            
+            // Fetch data
+            let reports = [];
+            for (const activity of playerHistory.activities[characterId]) {
+                if (activity["modes"].includes(gamemode)) {
+                    let report = {
+                        instanceId: activity["instanceId"],
+                        gamemode: gamemode,
+                        date: activity["period"], // TODO
+                        map: activity["referenceId"], // TODO
+                        winScore: 0, // TODO
+                        loseScore: 0, // TODO
+                        personalKD: activity["values"]["kills"] / activity["values"]["deaths"],
+                        personalKAD: (activity["values"]["kills"] + activity["values"]["assists"]) / activity["values"]["deaths"],
+                    };
+                    reports.push(report);
+                }
+                
+                if (reports.length >= n) {
+                    break;
+                }
+            }
+            
+            // Empty table rows
+            $('#carnage-reports-table tbody').empty();
+            
+            // Add to table
+            for (const report of reports) {
+                addCarnageReportToTable(report);
             }
         }
 
