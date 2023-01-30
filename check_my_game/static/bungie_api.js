@@ -115,8 +115,8 @@
             console.error(error);
         }
     }
-    
-    async fetchEntityDefinition(entityType, hashIdentifier){
+
+    async fetchEntityDefinition(entityType, hashIdentifier) {
         let targetURL = new URL(`Platform/Destiny2/Manifest/${entityType}/${hashIdentifier}`, this.endpoint);
 
         try {
@@ -136,8 +136,8 @@
             console.error(error);
         }
     }
-    
-    async fetchMapDefinition(referenceId){
+
+    async fetchMapDefinition(referenceId) {
         return await this.fetchEntityDefinition("DestinyActivityDefinition", referenceId);
     }
 
@@ -151,22 +151,121 @@
         }
         return "";
     }
+
+    getGamemodeStr(gamemodeInt) {
+        const d = {
+            "2": "Story",
+            "3": "Strike",
+            "4": "Raid",
+            "5": "All PvP",
+            "6": "Patrol",
+            "7": "All PvE",
+            "9": "Reserved9",
+            "10": "Control",
+            "11": "Reserved11",
+            "12": "Clash",
+            "13": "Reserved13",
+            "15": "Crimson Doubles",
+            "16": "Nightfall",
+            "17": "Heroic Nightfall",
+            "18": "AllStrikes",
+            "19": "IronBanner",
+            "20": "Reserved20",
+            "21": "Reserved21",
+            "22": "Reserved22",
+            "24": "Reserved24",
+            "25": "AllMayhem",
+            "26": "Reserved26",
+            "27": "Reserved27",
+            "28": "Reserved28",
+            "29": "Reserved29",
+            "30": "Reserved30",
+            "31": "Supremacy",
+            "32": "Private Matches All",
+            "37": "Survival",
+            "38": "Countdown",
+            "39": "TrialsOfTheNine",
+            "40": "Social",
+            "41": "TrialsCountdown",
+            "42": "TrialsSurvival",
+            "43": "Iron Banner Control",
+            "44": "Iron Banner Clash",
+            "45": "Iron Banner Supremacy",
+            "46": "Scored Nightfall",
+            "47": "Scored Heroic Nightfall",
+            "48": "Rumble",
+            "49": "AllDoubles",
+            "50": "Doubles",
+            "51": "Private Matches Clash",
+            "52": "Private Matches Control",
+            "53": "Private Matches Supremacy",
+            "54": "Private Matches Countdown",
+            "55": "Private Matches Survival",
+            "56": "Private Matches Mayhem",
+            "57": "Private Matches Rumble",
+            "58": "Heroic Adventure",
+            "59": "Showdown",
+            "60": "Lockdown",
+            "61": "Scorched",
+            "62": "ScorchedTeam",
+            "63": "Gambit",
+            "64": "All PvE Competitive",
+            "65": "Breakthrough",
+            "66": "BlackArmoryRun",
+            "67": "Salvage",
+            "68": "IronBannerSalvage",
+            "69": "PvP Competitive",
+            "70": "PvP Quickplay",
+            "71": "Clash Quickplay",
+            "72": "Clash Competitive",
+            "73": "Control Quickplay",
+            "74": "Control Competitive",
+            "75": "Gambit Prime",
+            "76": "Reckoning",
+            "77": "Menagerie",
+            "78": "Vex Offensive",
+            "79": "Nightmare Hunt",
+            "80": "Elimination",
+            "81": "Momentum",
+            "82": "Dungeon",
+            "83": "Sundial",
+            "84": "Trials Of Osiris",
+            "85": "Dares",
+            "86": "Offensive",
+            "87": "Lost Sector",
+            "88": "Rift",
+            "89": "Zone Control",
+            "90": "IronBannerRift",
+            "91": "IronBannerZoneControl"
+        };
+        return d[gamemodeInt];
+    }
+    
+    getPvPMapInfo(referenceId) {
+        // TODO
+        const d = {
+            "1": {
+                name: "Javelin-4",
+                pgcrImage: "/img/destiny_content/pgcr/crucible_shaft.jpg",
+                description: "Warsat Launch Facility, Io",
+            },
+        };
+        
+        return d[referenceId];
+    }
 }
 
 class PlayerHistory {
-    constructor(membershipId, membershipType, characterIds, gamemodes = []) {
+    constructor(membershipId, membershipType, characterIds) {
         this.membershipId = membershipId;
         this.membershipType = membershipType;
         this.characterIds = characterIds;
-        this.gamemodes = gamemodes;
-        
+
         this.seasonStartDate = new Date("2022-12-06");
 
         // Init storage
-        this.stats = {}
         this.activities = {};
         characterIds.forEach(characterId => {
-            this.stats[characterId] = {};
             this.activities[characterId] = [];
         })
     }
@@ -188,7 +287,6 @@ class PlayerHistory {
 
         let page = 0
         let result;
-        let dailyStats = {}; // { gamemode: {period: Date, values: getEmptyStatsDict() }
         do {
             result = await bungieAPI.fetchActivityHistory(this.membershipId, this.membershipType, characterId, 5, page);
 
@@ -200,12 +298,12 @@ class PlayerHistory {
             // Parse activities
             for (const activity of result["Response"]["activities"]) {
                 const day = new Date(activity["period"]);
-                
+
                 // Handle API gamemode error
                 if (activity["activityDetails"]["modes"].includes(0) || (activity["activityDetails"]["mode"] === 0)) {
                     continue;
                 }
-                
+
                 // Add to activity history
                 let activityData = {
                     period: day,
@@ -224,48 +322,11 @@ class PlayerHistory {
                     }
                 };
                 this.activities[characterId].push(activityData);
-                
-                
-                // Add stats from each activity for each gamemode
-                // Not optimal - duplicate data - improve by using the activities above
-                for (const gamemode of activity["activityDetails"]["modes"]) {
-                    // Ensure 'gamemode' key creation
-                    if (!(gamemode in this.stats[characterId])) {
-                        this.stats[characterId][gamemode] = [];
-                    }
-                    if (!(gamemode in dailyStats)) {
-                        dailyStats[gamemode] = {period: day, values: this.getEmptyStatsDict()};
-                    }
-
-                    // Check day
-                    if (dateDiffInDays(day, dailyStats[gamemode]["period"]) > 0) {
-                        // Append currentDayStats
-                        this.stats[characterId][gamemode].push(dailyStats[gamemode]);
-                        // reset dailyStats with new day
-                        dailyStats[gamemode] = {period: day, values: this.getEmptyStatsDict()};
-                    }
-
-                    // Add stats
-                    dailyStats[gamemode]["values"]["activitiesEntered"] += 1;
-                    if (activity["values"]["standing"]["basic"]["value"] > 0) {
-                        dailyStats[gamemode]["values"]["activitiesWon"] += 1;
-                    }
-                    dailyStats[gamemode]["values"]["kills"] += activity["values"]["kills"]["basic"]["value"];
-                    dailyStats[gamemode]["values"]["assists"] += activity["values"]["assists"]["basic"]["value"];
-                    dailyStats[gamemode]["values"]["deaths"] += activity["values"]["deaths"]["basic"]["value"];
-                    dailyStats[gamemode]["values"]["secondsPlayed"] += activity["values"]["timePlayedSeconds"]["basic"]["value"];
-                    dailyStats[gamemode]["values"]["score"] += activity["values"]["score"]["basic"]["value"];
-                }
             }
-            
+
             // Next page for api
             ++page;
         } while (Object.keys(result["Response"]).length > 0);
-
-        // Push remaining daily stats
-        for (const gamemode in dailyStats) {
-            this.stats[characterId][gamemode].push(dailyStats[gamemode]);
-        }
     }
 
     getEmptyStatsDict() {
@@ -281,22 +342,30 @@ class PlayerHistory {
     }
 
     _aggregateStats(characterId, gamemode, startDate, endDate) {
-        // Sum values between start date and end date
-        let dailyStats = this.stats[characterId][gamemode];
-        let result = {};
+        let result = this.getEmptyStatsDict();
 
         // Aggregate
-        for (const dayStats of dailyStats) {
-            if ((dateDiffInDays(startDate, dayStats["period"]) < 0) || (dateDiffInDays(dayStats["period"], endDate) < 0)) {
+        for (const activity of this.activities[characterId]) {
+            // Check date
+            if (activity["period"] < startDate) {
+                break; // Activites are stored chronologically
+            }
+            if (activity["period"] > endDate) {
                 continue;
             }
 
-            for (const statName in dayStats["values"]) {
-                if (!(statName in result)) {
-                    result[statName] = 0;
-                }
-                result[statName] += dayStats["values"][statName];
+            // Check gamemode
+            if (!activity["modes"].includes(parseInt(gamemode))) {
+                continue;
             }
+
+            result["activitiesEntered"] += 1;
+            result["activitiesWon"] += activity["values"]["winner"] ? 1 : 0;
+            result["kills"] += activity["values"]["kills"];
+            result["assists"] += activity["values"]["assists"];
+            result["deaths"] += activity["values"]["deaths"];
+            result["secondsPlayed"] += activity["values"]["secondsPlayed"];
+            result["score"] += activity["values"]["score"];
         }
 
         return result;

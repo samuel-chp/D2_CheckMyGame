@@ -36,36 +36,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr>
-                <td>Activities entered</td>
-                <td>-</td>
-                <td>-</td>
-            </tr>
-            <tr>
-                <td>Kills</td>
-                <td>-</td>
-                <td>-</td>
-            </tr>
-            <tr>
-                <td>Assists</td>
-                <td>-</td>
-                <td>-</td>
-            </tr>
-            <tr>
-                <td>Deaths</td>
-                <td>-</td>
-                <td>-</td>
-            </tr>
-            <tr>
-                <td>KD</td>
-                <td>-</td>
-                <td>-</td>
-            </tr>
-            <tr>
-                <td>KDA</td>
-                <td>-</td>
-                <td>-</td>
-            </tr>
+                {# Dynamically added here. #}
             </tbody>
         </table>
     </div>
@@ -83,25 +54,7 @@
         <table class="table" id="carnage-reports-table">
             <thead></thead>
             <tbody>
-            <tr>
-                <td>
-                    <p>Choc</p>
-                    <p>23/01/2023</p>
-                    <p>Terre de rouilles</p>
-                </td>
-                <td>
-                    <p>Score</p>
-                    <p>150 - 73</p>
-                </td>
-                <td>
-                    <p>KD</p>
-                    <p>2.1</p>
-                </td>
-                <td>
-                    <p>KDA</p>
-                    <p>2.5</p>
-                </td>
-            </tr>
+                {# Dynamically added here. #}
             </tbody>
         </table>
     </div>
@@ -137,9 +90,9 @@
             // Get characters id
             const characterIds = [...document.getElementById("character-select").options].map(o => o.value);
             
-            // Fetch all player stats, link GAMEMODES NUMBER TO THE SELECT HTML
-            playerHistory = new PlayerHistory(membershipId, membershipType, characterIds, [5, 70, 69, 84]);
-            await playerHistory.populateFromActivities();
+            // Fetch all player stats
+            playerHistory = new PlayerHistory(membershipId, membershipType, characterIds);
+            await playerHistory.populateFromActivities(); // TODO: populate incrementally for faster loading impression
             
             refreshTables();
             
@@ -230,10 +183,6 @@
                     </button>
                 </td>
                 <td>
-                    <p>Score</p>
-                    <p>${report.winScore} - ${report.loseScore}</p>
-                </td>
-                <td>
                     <p>KD</p>
                     <p>${(report.personalKD > 0 && isFinite(report.personalKD))  ? +report.personalKD.toFixed(2) : 0}</p>
                 </td>
@@ -260,13 +209,16 @@
             let reports = [];
             for (const activity of playerHistory.activities[characterId]) {
                 if (activity["modes"].includes(gamemode)) {
+                    {#const mapInfo = bungieAPI.getPvPMapInfo(activity["referenceId"]);#}
+                    const mapInfo = bungieAPI.getPvPMapInfo("1");
+                    
+                    // To add win and lose score, we must fetch the carnage report entirely...
+                    
                     let report = {
                         instanceId: activity["instanceId"],
-                        gamemode: gamemode,
-                        date: activity["period"], // TODO
-                        map: activity["referenceId"], // TODO
-                        winScore: 0, // TODO
-                        loseScore: 0, // TODO
+                        gamemode: bungieAPI.getGamemodeStr(activity["mode"]),
+                        date: activity["period"],
+                        map: mapInfo["name"],
                         personalKD: activity["values"]["kills"] / activity["values"]["deaths"],
                         personalKAD: (activity["values"]["kills"] + activity["values"]["assists"]) / activity["values"]["deaths"],
                     };
