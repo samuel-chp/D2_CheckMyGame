@@ -174,6 +174,29 @@
         await this.waitForToken();
         return await this.fetchEntityDefinition("DestinyActivityDefinition", referenceId);
     }
+    
+    async fetchCarnageReport(instanceId) {
+        await this.waitForToken();
+
+        let targetURL = new URL(`Platform/Destiny2/Stats/PostGameCarnageReport/${instanceId}/`, this.endpoint);
+
+        try {
+            return await $.ajax({
+                url: targetURL.href,
+                type: "GET",
+                headers: {'X-API-Key': this.secret_key},
+                datatype: 'json',
+                success: function (result) {
+                    // console.log(result);
+                },
+                error: function (error) {
+                    // console.log(error);
+                }
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
     getClassTypeStr(classType) {
         if (classType === 0) {
