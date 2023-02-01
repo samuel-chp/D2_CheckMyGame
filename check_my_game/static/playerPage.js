@@ -1,4 +1,5 @@
-﻿var playerHistory;
+﻿var playerHistory = {};
+var mapInfo = {};
 
 window.onload = (event) => {
     // Parse query params
@@ -132,7 +133,7 @@ function addCarnageReportToTable(report) {
                     <button class="btn btn-primary btn-carnage">
                         <p>${report.gamemode}</p>
                         <p>${ymd} <br> ${hm}</p>
-                        <p>${report.map}</p>
+                        <p data-reference_id="${report.map}">-</p>
                     </button>
                 </td>
                 <td>
@@ -158,19 +159,16 @@ function fillCarnageReportTable() {
     // Get number of activities to load
     const n = 10;
 
-    // Fetch data
+    // Fetch activity data
     let reports = [];
     for (const activity of playerHistory.activities[characterId]) {
         if (activity["modes"].includes(gamemode)) {
-            const mapInfo = bungieAPI.getPvPMapInfo("1");
-
             // To add win and lose score, we must fetch the carnage report entirely...
-
             let report = {
                 instanceId: activity["instanceId"],
                 gamemode: bungieAPI.getGamemodeStr(activity["mode"]),
                 date: activity["period"],
-                map: mapInfo["name"],
+                map: activity["referenceId"],
                 personalKD: activity["values"]["kills"] / activity["values"]["deaths"],
                 personalKAD: (activity["values"]["kills"] + activity["values"]["assists"]) / activity["values"]["deaths"],
             };
@@ -188,6 +186,38 @@ function fillCarnageReportTable() {
     // Add to table
     for (const report of reports) {
         addCarnageReportToTable(report);
+    }
+    
+    // Update map info
+    updateMapInfo();
+}
+
+async function updateMapInfo() {
+    // Fetch map info from referenceId from api
+    // TODO: to improve time we can populate a database from this server instead of calling the api
+    let fetchMapInfoTasks = [];
+    for (const element of $("[data-reference_id]")) {
+        const referenceId = $(element).data()["reference_id"];
+        if (!mapInfo.hasOwnProperty(referenceId)){
+            fetchMapInfoTasks.push(bungieAPI.fetchMapDefinition(referenceId));
+        }
+    }
+    let results = await Promise.all(fetchMapInfoTasks);
+    
+    // Populate dict
+    for (let r of results) {
+        r = r["Response"];
+        mapInfo[r["hash"]] = {
+            name: r["displayProperties"]["name"],
+            description: r["displayProperties"]["description"],
+            image: r["pgcrImage"]
+        };
+    }
+    
+    // Update table
+    for (const element of $("[data-reference_id]")) {
+        const referenceId = $(element).data()["reference_id"];
+        $(element).text(mapInfo[referenceId]["name"]);
     }
 }
 

@@ -449,7 +449,11 @@ class PlayerHistory {
      */
     getStatsWeekly(characterId, gamemode) {
         let lastReset = new Date();
-        lastReset.setDate(lastReset.getDate() - (lastReset.getDay() + 5) % 7);
+        if (lastReset.getDay() === 2){
+            lastReset.setDate(lastReset.getDate() - 7);
+        } else {
+            lastReset.setDate(lastReset.getDate() - (lastReset.getDay() + 5) % 7);
+        }
         lastReset.setHours(17, 0, 0);
         return this._aggregateStats(characterId, gamemode, lastReset, new Date());
     }
