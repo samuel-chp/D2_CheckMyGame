@@ -198,6 +198,29 @@
         }
     }
 
+    async fetchClanFromMember(membershipId, membershipType) {
+        await this.waitForToken();
+
+        let targetURL = new URL(`Platform/GroupV2/User/${membershipType}/${membershipId}/0/1/ `, this.endpoint);
+
+        try {
+            return await $.ajax({
+                url: targetURL.href,
+                type: "GET",
+                headers: {'X-API-Key': this.secret_key},
+                datatype: 'json',
+                success: function (result) {
+                    // console.log(result);
+                },
+                error: function (error) {
+                    // console.log(error);
+                }
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     getClassTypeStr(classType) {
         if (classType === 0) {
             return "Titan";
@@ -470,7 +493,7 @@ class PlayerHistory {
     }
 
     getPlayerId() {
-        return String(this.membershipId) + "-" + String(this.membershipType);
+        return getPlayerId(this.membershipId, this.membershipType);
     }
 
     save() {
@@ -478,6 +501,10 @@ class PlayerHistory {
         playersHistory[this.getPlayerId()] = this;
         setSessionVariable("playersHistory", playersHistory);
     }
+}
+
+function getPlayerId(membershipId, membershipType) {
+    return String(membershipId) + "-" + String(membershipType);
 }
 
 function dateDiffInDays(a, b) {

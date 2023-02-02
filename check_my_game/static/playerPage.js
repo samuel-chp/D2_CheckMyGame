@@ -1,5 +1,6 @@
 ﻿var playerHistory = {};
 var mapInfo = {};
+var playerProfile = {}
 
 window.onload = (event) => {
     // Parse query params
@@ -37,6 +38,7 @@ async function initPage(membershipId, membershipType, displayName, displayNameCo
 
     // Fetch profile for characterIds
     await fetchCharacters(membershipId, membershipType);
+    fetchClan(membershipId, membershipType);
 
     populateActivities(membershipId, membershipType);
 }
@@ -101,11 +103,33 @@ function fillCharactersSelect(charactersData) {
 }
 
 async function fetchCharacters(membershipId, membershipType) {
-    const result = await bungieAPI.fetchPlayerProfile(membershipId, membershipType);
-    if (result && result["ErrorCode"] === 1) {
+    let playerId = getPlayerId(membershipId, membershipType);
+    let playerProfiles = getSessionVariable("playerProfiles");
 
-        fillCharactersSelect(result["Response"]["characters"]["data"]);
+    if (playerId in playerProfiles) {
+        playerProfile = playerProfiles[playerId];
+    } else {
+        const r = await bungieAPI.fetchPlayerProfile(membershipId, membershipType);
+        playerProfile = r["Response"]["characters"]["data"];
+        setSessionVariable("playerProfiles", playerProfile);
     }
+
+    fillCharactersSelect(playerProfile);
+}
+
+async function fetchClan(membershipId, membershipType) {
+    const clanInfo = await bungieAPI.fetchClanFromMember(membershipId, membershipType);
+
+    if (clanInfo["Response"]["results"].length === 0){
+        return;
+    }
+
+    const clanId = clanInfo["Response"]["results"][0]["group"]["groupId"];
+    const clanName = clanInfo["Response"]["results"][0]["group"]["name"];
+    const clanSign = clanInfo["Response"]["results"][0]["group"]["clanInfo"]["clanCallsign"];
+
+    $('#btn-clan').text(clanSign);
+    $('#btn-clan').attr("data-clanId", clanId);
 }
 
 function refreshTables() {
@@ -275,8 +299,4 @@ async function refreshActivities() {
 function setName(displayName, displayNameCode) {
     const fname = displayName.charAt(0).toUpperCase() + displayName.slice(1);
     $('#guardian-name').text(fname + '#' + displayNameCode);
-}
-
-function savePlayerHistory() {
-
 }
