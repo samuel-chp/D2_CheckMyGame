@@ -327,24 +327,22 @@ class PlayerHistory {
         })
     }
 
-    async populateFromActivities() {
-        for (const characterId of this.characterIds) {
-            await this._populateCharacterFromActivities(characterId);
-        }
-    }
-
     /**
      * Populate stats for this season only.
      * @param characterId
+     * @param startPage included
+     * @param endPage not included
+     * @param numberOfActivitiesPerPage
      * @returns {Promise<void>}
      * @private
      */
-    async _populateCharacterFromActivities(characterId) {
-        // const instance = this;
-        
+    async populateCharacterFromActivities(characterId, startPage, endPage, numberOfActivitiesPerPage) {
+        startPage = Math.min(startPage, 200);
+        endPage = Math.min(endPage, 200);
+
         // Call Bungie API
         let tasks = [];
-        for (let i=0; i<100; i++){
+        for (let i=startPage; i<endPage; i++){
             tasks.push(bungieAPI.fetchActivityHistory(this.membershipId, this.membershipType, characterId, 5, i));
         }
         let results = await Promise.all(tasks); // Increase speed
@@ -361,6 +359,11 @@ class PlayerHistory {
 
                 // Handle API gamemode error
                 if (activity["activityDetails"]["modes"].includes(0) || (activity["activityDetails"]["mode"] === 0)) {
+                    continue;
+                }
+
+                // Ensure it's not already here
+                if (this.activities[characterId].filter(a => a.instanceId === activity["activityDetails"]["instanceId"]).length > 0) {
                     continue;
                 }
 
@@ -381,9 +384,13 @@ class PlayerHistory {
                         "winner": activity["values"]["standing"]["basic"]["value"] < 1,
                     }
                 };
+
                 this.activities[characterId].push(activityData);
             }
         }
+
+        // Store in session
+        this.save();
     }
 
     getEmptyStatsDict() {
@@ -400,14 +407,18 @@ class PlayerHistory {
 
     _aggregateStats(characterId, gamemode, startDate, endDate) {
         let result = this.getEmptyStatsDict();
+        startDate = new Date(startDate);
+        endDate = new Date(endDate);
 
         // Aggregate
         for (const activity of this.activities[characterId]) {
+            let period = new Date(activity["period"]);
+
             // Check date
-            if (activity["period"] < startDate) {
+            if (period < startDate) {
                 break; // Activites are stored chronologically
             }
-            if (activity["period"] > endDate) {
+            if (period > endDate) {
                 continue;
             }
 
@@ -457,6 +468,16 @@ class PlayerHistory {
         lastReset.setHours(17, 0, 0);
         return this._aggregateStats(characterId, gamemode, lastReset, new Date());
     }
+
+    getPlayerId() {
+        return String(this.membershipId) + "-" + String(this.membershipType);
+    }
+
+    save() {
+        let playersHistory = getSessionVariable("playersHistory");
+        playersHistory[this.getPlayerId()] = this;
+        setSessionVariable("playersHistory", playersHistory);
+    }
 }
 
 function dateDiffInDays(a, b) {
@@ -474,6 +495,24 @@ function formatDateToAPIFormat(date) {
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function getSessionVariable(key) {
+    let r = sessionStorage.getItem(key);
+    if (!r) {
+        r = "{}";
+    }
+    r = JSON.parse(r);
+    return r;
+}
+
+function setSessionVariable(key, value) {
+    sessionStorage.setItem(key, JSON.stringify(value));
+}
+
+// DEBUG
+function clearSession() {
+    sessionStorage.setItem("playersHistory", "{}");
 }
 
 

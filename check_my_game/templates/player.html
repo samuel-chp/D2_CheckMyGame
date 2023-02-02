@@ -4,7 +4,8 @@
 
     <div class="" container>
         <h1 id="guardian-name">Breeky</h1>
-        <select name="character" id="character-select" onchange="refreshTables()">
+
+        <select name="character" id="character-select" onchange="refreshActivities()">
             <option value="a">Character 1</option>
             <option value="b">Character 2</option>
             <option value="c">Character 3</option>
@@ -26,6 +27,10 @@
             <option value="69">Competitive</option>
             <option value="84">Osiris</option>
         </select>
+
+        <button type="button" class="btn btn-light btn-refresh" onclick="refreshActivities()">
+            Refresh
+        </button>
         
         <table class="table" id="stats-table">
             <thead>
@@ -50,6 +55,10 @@
             <option value="69">Competitive</option>
             <option value="84">Osiris</option>
         </select>
+
+        <button type="button" class="btn btn-light btn-refresh" onclick="refreshActivities()">
+            Refresh
+        </button>
         
         <table class="table" id="carnage-reports-table">
             <thead></thead>

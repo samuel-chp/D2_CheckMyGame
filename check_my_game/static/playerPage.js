@@ -22,6 +22,14 @@ window.onload = (event) => {
 
         window.location.href = '/carnageReport?' + query.toString();
     })
+
+    // Add delay between clicks on refresh buttons
+    $(document).on('click', '', function () {
+        $(".btn-refresh").each(function (_, btn) {
+            $(btn).attr("disabled", true);
+            setTimeout(() => { $(btn).attr("disabled", false); }, 2000);
+        });
+    })
 };
 
 async function initPage(membershipId, membershipType, displayName, displayNameCode) {
@@ -30,13 +38,44 @@ async function initPage(membershipId, membershipType, displayName, displayNameCo
     // Fetch profile for characterIds
     await fetchCharacters(membershipId, membershipType);
 
-    // Get characters id
-    const characterIds = [...document.getElementById("character-select").options].map(o => o.value);
+    populateActivities(membershipId, membershipType);
+}
 
-    // Fetch all player stats
+function populateActivities(membershipId, membershipType) {
+    // Get characters id, selected one first
+    let currentCharacterId = $('#character-select').val();
+    let characterIds = [currentCharacterId];
+    for (let characterId of [...document.getElementById("character-select").options].map(o => o.value)){
+        if (characterId !== currentCharacterId) {
+            characterIds.push(characterId);
+        }
+    }
+
+    // Store players data in session for faster loading
+    let playersHistory = getSessionVariable("playersHistory");
     playerHistory = new PlayerHistory(membershipId, membershipType, characterIds);
-    playerHistory.populateFromActivities()
-        .then(() => refreshTables());
+    let playerId = playerHistory.getPlayerId();
+    if (playerId in playersHistory) {
+        let playerHistoryData = playersHistory[playerId];
+        playerHistory.activities = playerHistoryData.activities;
+        refreshActivities();
+    } else {
+        // First select the parameters that require less data (weekly)
+        $('#period-select').val("weekly");
+
+        // Populate incrementally
+        // First weekly for selected character
+        playerHistory.populateCharacterFromActivities(currentCharacterId, 0, 1, 250)
+            .then(() => refreshTables());
+        for (let characterId of characterIds) {
+            // Seasonal
+            playerHistory.populateCharacterFromActivities(characterId, 0, 15, 250)
+                .then(() => refreshTables());
+            // all time
+            playerHistory.populateCharacterFromActivities(characterId, 15, 100, 250)
+                .then(() => refreshTables());
+        }
+    }
 }
 
 function fillCharactersSelect(charactersData) {
@@ -123,7 +162,7 @@ function fillStatsTable() {
 }
 
 function addCarnageReportToTable(report) {
-    let isoDate = report.date.toISOString();
+    let isoDate = (new Date(report.date)).toISOString();
     const ymd = isoDate.split('T')[0];
     const hm = isoDate.split('T')[1].split(':')[0] + ':' + isoDate.split('T')[1].split(':')[1];
 
@@ -193,8 +232,10 @@ function fillCarnageReportTable() {
 }
 
 async function updateMapInfo() {
+    // Load mapInfo
+    mapInfo = getSessionVariable("mapInfo");
+
     // Fetch map info from referenceId from api
-    // TODO: to improve time we can populate a database from this server instead of calling the api
     let fetchMapInfoTasks = [];
     for (const element of $("[data-reference_id]")) {
         const referenceId = $(element).data()["reference_id"];
@@ -213,6 +254,9 @@ async function updateMapInfo() {
             image: r["pgcrImage"]
         };
     }
+
+    // Save mapInfo
+    setSessionVariable("mapInfo", mapInfo);
     
     // Update table
     for (const element of $("[data-reference_id]")) {
@@ -221,7 +265,18 @@ async function updateMapInfo() {
     }
 }
 
+async function refreshActivities() {
+    refreshTables(); // Ensure data is resfreshed (changing character for instance) before actualizing
+    let currentCharacterId = $('#character-select').val();
+    await playerHistory.populateCharacterFromActivities(currentCharacterId, 0, 1, 100);
+    refreshTables();
+}
+
 function setName(displayName, displayNameCode) {
     const fname = displayName.charAt(0).toUpperCase() + displayName.slice(1);
     $('#guardian-name').text(fname + '#' + displayNameCode);
+}
+
+function savePlayerHistory() {
+
 }
