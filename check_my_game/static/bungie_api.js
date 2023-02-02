@@ -335,19 +335,68 @@
     }
 }
 
-class PlayerHistory {
-    constructor(membershipId, membershipType, characterIds) {
+class Guardian {
+    static seasonStartDate = new Date("2022-12-06");
+
+    constructor(membershipId, membershipType, displayName="", displayNameCode="") {
         this.membershipId = membershipId;
         this.membershipType = membershipType;
-        this.characterIds = characterIds;
+        this.displayName = displayName;
+        this.displayNameCode = displayNameCode;
 
-        this.seasonStartDate = new Date("2022-12-06");
-
-        // Init storage
+        this.characters = {};
         this.activities = {};
-        characterIds.forEach(characterId => {
-            this.activities[characterId] = [];
-        })
+        this.clan = {
+            clanId : null,
+            clanName: "",
+            clanSign : "",
+        }
+    }
+
+    static getPlayerId(membershipId, membershipType) {
+        return String(membershipId) + "-" + String(membershipType);
+    }
+
+    static fromJSONObject(obj) {
+        let guardian = new Guardian(obj.membershipId, obj.membershipType, obj.displayName, obj.displayNameCode);
+        guardian.characters = obj.characters;
+        guardian.activities = obj.activities;
+        guardian.clan = obj.clan;
+        return guardian;
+    }
+
+    getPlayerId() {
+        return Guardian.getPlayerId(this.membershipId, this.membershipType);
+    }
+
+    getLastPlayedCharacter() {
+        let lastPlayed = {characterId: null, date: new Date("2010")};
+        for (let characterId in this.characters) {
+            let dateLastPlayed = new Date(this.characters[characterId]["dateLastPlayed"]);
+            if (dateLastPlayed > lastPlayed["date"]) {
+                lastPlayed["date"] = dateLastPlayed;
+                lastPlayed["characterId"] = characterId;
+            }
+        }
+        return this.characters[lastPlayed.characterId];
+    }
+
+    async fetchCharacters() {
+        const r = await bungieAPI.fetchPlayerProfile(this.membershipId, this.membershipType);
+        this.characters = r["Response"]["characters"]["data"];
+    }
+
+    async fetchClan() {
+        const clanInfo = await bungieAPI.fetchClanFromMember(this.membershipId, this.membershipType);
+
+        // Ensure player has a clan
+        if (clanInfo["Response"]["results"].length === 0) {
+            return;
+        }
+
+        this.clan.clanId = clanInfo["Response"]["results"][0]["group"]["groupId"];
+        this.clan.clanName = clanInfo["Response"]["results"][0]["group"]["name"];
+        this.clan.clanSign = clanInfo["Response"]["results"][0]["group"]["clanInfo"]["clanCallsign"];
     }
 
     /**
@@ -359,9 +408,14 @@ class PlayerHistory {
      * @returns {Promise<void>}
      * @private
      */
-    async populateCharacterFromActivities(characterId, startPage, endPage, numberOfActivitiesPerPage) {
+    async populateCharacterActivities(characterId, startPage, endPage, numberOfActivitiesPerPage) {
         startPage = Math.min(startPage, 200);
         endPage = Math.min(endPage, 200);
+
+        // Ensure characterId exists
+        if (!(characterId in this.activities)){
+            this.activities[characterId] = [];
+        }
 
         // Call Bungie API
         let tasks = [];
@@ -412,12 +466,15 @@ class PlayerHistory {
             }
         }
 
-        // Store in session
+        // Store in session after each data fetch
         this.save();
     }
 
-    getEmptyStatsDict() {
-        return {
+    _aggregateStats(characterId, gamemode, startDate, endDate) {
+        startDate = new Date(startDate);
+        endDate = new Date(endDate);
+
+        let result = {
             "activitiesEntered": 0,
             "activitiesWon": 0,
             "kills": 0,
@@ -425,13 +482,7 @@ class PlayerHistory {
             "deaths": 0,
             "secondsPlayed": 0,
             "score": 0,
-        }
-    }
-
-    _aggregateStats(characterId, gamemode, startDate, endDate) {
-        let result = this.getEmptyStatsDict();
-        startDate = new Date(startDate);
-        endDate = new Date(endDate);
+        };
 
         // Aggregate
         for (const activity of this.activities[characterId]) {
@@ -472,7 +523,7 @@ class PlayerHistory {
     }
 
     getStatsSeasonal(characterId, gamemode) {
-        return this._aggregateStats(characterId, gamemode, this.seasonStartDate, new Date());
+        return this._aggregateStats(characterId, gamemode, Guardian.seasonStartDate, new Date());
     }
 
     /**
@@ -492,14 +543,11 @@ class PlayerHistory {
         return this._aggregateStats(characterId, gamemode, lastReset, new Date());
     }
 
-    getPlayerId() {
-        return getPlayerId(this.membershipId, this.membershipType);
-    }
-
     save() {
-        let playersHistory = getSessionVariable("playersHistory");
-        playersHistory[this.getPlayerId()] = this;
-        setSessionVariable("playersHistory", playersHistory);
+        let guardians = getSessionVariable("guardians");
+        guardians[this.getPlayerId()] = this;
+        guardians[this.getPlayerId()].lastUpdate = new Date();
+        setSessionVariable("guardians", guardians);
     }
 }
 
@@ -539,7 +587,8 @@ function setSessionVariable(key, value) {
 
 // DEBUG
 function clearSession() {
-    sessionStorage.setItem("playersHistory", "{}");
+    sessionStorage.setItem("guardians", "{}");
+    sessionStorage.setItem("mapInfo", "{}");
 }
 
 

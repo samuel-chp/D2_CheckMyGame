@@ -1,6 +1,5 @@
-﻿var playerHistory = {};
-var mapInfo = {};
-var playerProfile = {}
+﻿var mapInfo = {};
+var guardian = {};
 
 window.onload = (event) => {
     // Parse query params
@@ -34,121 +33,70 @@ window.onload = (event) => {
 };
 
 async function initPage(membershipId, membershipType, displayName, displayNameCode) {
-    setName(displayName, displayNameCode);
+    fillName(displayName, displayNameCode);
 
-    // Fetch profile for characterIds
-    await fetchCharacters(membershipId, membershipType);
-    fetchClan(membershipId, membershipType);
+    // Init guardian
+    let guardians = getSessionVariable("guardians");
+    let playerId = Guardian.getPlayerId(membershipId, membershipType);
+    // Ensure it's not too old as well
+    if ((playerId in guardians) && (dateDiffInDays(new Date(guardians[playerId].lastUpdate), new Date()) < 1)) {
+        guardian = Guardian.fromJSONObject(guardians[playerId]);
+        fillCharacters(guardian.characters);
+        fillClan(guardian.clan.clanId, guardian.clan.clanName, guardian.clan.clanSign);
+        refreshActivities();
+    } else {
+        // Populate new guardian
+        guardian = new Guardian(membershipId, membershipType, displayName, displayNameCode);
+    }
 
-    populateActivities(membershipId, membershipType);
+    // For safety reload everything
+    await guardian.fetchCharacters();
+    fillCharacters(guardian.characters);
+    guardian.fetchClan().then(() => fillClan(guardian.clan.clanId, guardian.clan.clanName, guardian.clan.clanSign));
+    fetchActivities();
 }
 
-function populateActivities(membershipId, membershipType) {
-    // Get characters id, selected one first
-    let currentCharacterId = $('#character-select').val();
+function fetchActivities() {
+    // Get characters id, last played first
+    let currentCharacterId = guardian.getLastPlayedCharacter().characterId;
     let characterIds = [currentCharacterId];
-    for (let characterId of [...document.getElementById("character-select").options].map(o => o.value)){
+    for (let characterId in guardian.characters){
         if (characterId !== currentCharacterId) {
             characterIds.push(characterId);
         }
     }
 
-    // Store players data in session for faster loading
-    let playersHistory = getSessionVariable("playersHistory");
-    playerHistory = new PlayerHistory(membershipId, membershipType, characterIds);
-    let playerId = playerHistory.getPlayerId();
-    if (playerId in playersHistory) {
-        let playerHistoryData = playersHistory[playerId];
-        playerHistory.activities = playerHistoryData.activities;
-        refreshActivities();
-    } else {
-        // First select the parameters that require less data (weekly)
-        $('#period-select').val("weekly");
+    // First select the parameters that require less data (weekly)
+    $('#period-select').val("weekly");
 
-        // Populate incrementally
-        // First weekly for selected character
-        playerHistory.populateCharacterFromActivities(currentCharacterId, 0, 1, 250)
-            .then(() => refreshTables());
-        for (let characterId of characterIds) {
-            // Seasonal
-            playerHistory.populateCharacterFromActivities(characterId, 0, 15, 250)
-                .then(() => refreshTables());
-            // all time
-            playerHistory.populateCharacterFromActivities(characterId, 15, 100, 250)
-                .then(() => refreshTables());
-        }
-    }
-}
-
-function fillCharactersSelect(charactersData) {
-    let i = 1;
-    let lastPlayed = {characterId: null, date: new Date("2010")};
-    for (let characterId in charactersData) {
-        // save last played character
-        let dateLastPlayed = new Date(charactersData[characterId]["dateLastPlayed"]);
-        if (dateLastPlayed > lastPlayed["date"]) {
-            lastPlayed["date"] = dateLastPlayed;
-            lastPlayed["characterId"] = characterId;
-        }
-
-        // Fill options
-        let option = $(`#character-select option:nth-of-type(${i})`);
-        option.text(`${bungieAPI.getClassTypeStr(charactersData[characterId]["classType"])}   ${charactersData[characterId]["light"]}`);
-        option.attr("value", characterId);
-        ++i;
+    // Populate incrementally
+    // First weekly for selected character
+    guardian.populateCharacterActivities(currentCharacterId, 0, 100, 250)
+        .then(() => fillTables());
+    for (let characterId of characterIds) {
+        // Seasonal
+        guardian.populateCharacterActivities(characterId, 0, 15, 250)
+            .then(() => fillTables());
+        // all time
+        guardian.populateCharacterActivities(characterId, 15, 100, 250)
+            .then(() => fillTables());
     }
 
-    // Select the most recent played character
-    $("#character-select").val(lastPlayed["characterId"]);
 }
 
-async function fetchCharacters(membershipId, membershipType) {
-    let playerId = getPlayerId(membershipId, membershipType);
-    let playerProfiles = getSessionVariable("playerProfiles");
-
-    if (playerId in playerProfiles) {
-        playerProfile = playerProfiles[playerId];
-    } else {
-        const r = await bungieAPI.fetchPlayerProfile(membershipId, membershipType);
-        playerProfile = r["Response"]["characters"]["data"];
-        setSessionVariable("playerProfiles", playerProfile);
-    }
-
-    fillCharactersSelect(playerProfile);
+async function refreshActivities() {
+    fillTables(); // Ensure data is resfreshed (changing character for instance) before actualizing
+    let currentCharacterId = $('#character-select').val();
+    await guardian.populateCharacterActivities(currentCharacterId, 0, 1, 100);
+    fillTables();
 }
 
-async function fetchClan(membershipId, membershipType) {
-    const clanInfo = await bungieAPI.fetchClanFromMember(membershipId, membershipType);
-
-    if (clanInfo["Response"]["results"].length === 0){
-        return;
-    }
-
-    const clanId = clanInfo["Response"]["results"][0]["group"]["groupId"];
-    const clanName = clanInfo["Response"]["results"][0]["group"]["name"];
-    const clanSign = clanInfo["Response"]["results"][0]["group"]["clanInfo"]["clanCallsign"];
-
-    $('#btn-clan').text(clanSign);
-    $('#btn-clan').attr("data-clanId", clanId);
-}
-
-function refreshTables() {
+function fillTables() {
     fillStatsTable();
     fillCarnageReportTable();
 }
 
-function addStatToTable(statName, valueTotal, valuePGA = 0) {
-    valueTotal = isNaN(valueTotal) ? 0 : valueTotal;
-    let template = `
-            <tr>
-                <td>${statName}</td>
-                <td>${+valueTotal.toFixed(2)}</td>
-                <td>${(valuePGA > 0) ? +valuePGA.toFixed(2) : "-"}</td>
-            </tr>
-            `;
-    $('#stats-table tbody').append(template);
-}
-
+// STATS
 function fillStatsTable() {
     // Get selected character
     const characterId = $('#character-select option:selected').val();
@@ -160,11 +108,11 @@ function fillStatsTable() {
     let stats = {};
     const period = $('#period-select option:selected').val();
     if (period === "allTime") {
-        stats = playerHistory.getStatsAllTime(characterId, gamemode);
+        stats = guardian.getStatsAllTime(characterId, gamemode);
     } else if (period === "seasonal") {
-        stats = playerHistory.getStatsSeasonal(characterId, gamemode);
+        stats = guardian.getStatsSeasonal(characterId, gamemode);
     } else if (period === "weekly") {
-        stats = playerHistory.getStatsWeekly(characterId, gamemode);
+        stats = guardian.getStatsWeekly(characterId, gamemode);
     }
 
     // Empty table rows
@@ -183,6 +131,62 @@ function fillStatsTable() {
     addStatToTable("Kills", stats["kills"], stats["kills"] / stats["activitiesEntered"]);
     addStatToTable("Assits", stats["assists"], stats["assists"] / stats["activitiesEntered"]);
     addStatToTable("Deaths", stats["deaths"], stats["deaths"] / stats["activitiesEntered"]);
+}
+
+function addStatToTable(statName, valueTotal, valuePGA = 0) {
+    valueTotal = isNaN(valueTotal) ? 0 : valueTotal;
+    let template = `
+            <tr>
+                <td>${statName}</td>
+                <td>${+valueTotal.toFixed(2)}</td>
+                <td>${(valuePGA > 0) ? +valuePGA.toFixed(2) : "-"}</td>
+            </tr>
+            `;
+    $('#stats-table tbody').append(template);
+}
+
+// CARNAGE
+function fillCarnageReportTable() {
+    // Get selected character
+    const characterId = $('#character-select option:selected').val();
+
+    // Get selected gamemode
+    const gamemode = parseInt($('#gamemode-carnage-select option:selected').val());
+
+    // Get number of activities to load
+    const n = 10;
+
+    // Fetch activity data
+    let reports = [];
+    for (const activity of guardian.activities[characterId]) {
+        if (activity["modes"].includes(gamemode)) {
+            // To add win and lose score, we must fetch the carnage report entirely...
+            let report = {
+                instanceId: activity["instanceId"],
+                gamemode: bungieAPI.getGamemodeStr(activity["mode"]),
+                date: activity["period"],
+                map: activity["referenceId"],
+                personalKD: activity["values"]["kills"] / activity["values"]["deaths"],
+                personalKAD: (activity["values"]["kills"] + activity["values"]["assists"]) / activity["values"]["deaths"],
+            };
+            reports.push(report);
+        }
+
+        if (reports.length >= n) {
+            break;
+        }
+    }
+
+    // Empty table rows
+    $('#carnage-reports-table tbody').empty();
+
+    // Add to table
+    for (const report of reports) {
+        addCarnageReportToTable(report);
+    }
+
+    // Update map info
+    updateMapInfo();
 }
 
 function addCarnageReportToTable(report) {
@@ -212,49 +216,7 @@ function addCarnageReportToTable(report) {
     $('#carnage-reports-table tbody').append(template);
 }
 
-function fillCarnageReportTable() {
-    // Get selected character
-    const characterId = $('#character-select option:selected').val();
-
-    // Get selected gamemode
-    const gamemode = parseInt($('#gamemode-carnage-select option:selected').val());
-
-    // Get number of activities to load
-    const n = 10;
-
-    // Fetch activity data
-    let reports = [];
-    for (const activity of playerHistory.activities[characterId]) {
-        if (activity["modes"].includes(gamemode)) {
-            // To add win and lose score, we must fetch the carnage report entirely...
-            let report = {
-                instanceId: activity["instanceId"],
-                gamemode: bungieAPI.getGamemodeStr(activity["mode"]),
-                date: activity["period"],
-                map: activity["referenceId"],
-                personalKD: activity["values"]["kills"] / activity["values"]["deaths"],
-                personalKAD: (activity["values"]["kills"] + activity["values"]["assists"]) / activity["values"]["deaths"],
-            };
-            reports.push(report);
-        }
-
-        if (reports.length >= n) {
-            break;
-        }
-    }
-
-    // Empty table rows
-    $('#carnage-reports-table tbody').empty();
-
-    // Add to table
-    for (const report of reports) {
-        addCarnageReportToTable(report);
-    }
-    
-    // Update map info
-    updateMapInfo();
-}
-
+// MAPS
 async function updateMapInfo() {
     // Load mapInfo
     mapInfo = getSessionVariable("mapInfo");
@@ -289,14 +251,35 @@ async function updateMapInfo() {
     }
 }
 
-async function refreshActivities() {
-    refreshTables(); // Ensure data is resfreshed (changing character for instance) before actualizing
-    let currentCharacterId = $('#character-select').val();
-    await playerHistory.populateCharacterFromActivities(currentCharacterId, 0, 1, 100);
-    refreshTables();
-}
-
-function setName(displayName, displayNameCode) {
+// OTHERS
+function fillName(displayName, displayNameCode) {
     const fname = displayName.charAt(0).toUpperCase() + displayName.slice(1);
     $('#guardian-name').text(fname + '#' + displayNameCode);
+}
+
+function fillCharacters(charactersData) {
+    let i = 1;
+    let lastPlayed = {characterId: null, date: new Date("2010")};
+    for (let characterId in charactersData) {
+        // save last played character
+        let dateLastPlayed = new Date(charactersData[characterId]["dateLastPlayed"]);
+        if (dateLastPlayed > lastPlayed["date"]) {
+            lastPlayed["date"] = dateLastPlayed;
+            lastPlayed["characterId"] = characterId;
+        }
+
+        // Fill options
+        let option = $(`#character-select option:nth-of-type(${i})`);
+        option.text(`${bungieAPI.getClassTypeStr(charactersData[characterId]["classType"])}   ${charactersData[characterId]["light"]}`);
+        option.attr("value", characterId);
+        ++i;
+    }
+
+    // Select the most recent played character
+    $("#character-select").val(lastPlayed["characterId"]);
+}
+
+function fillClan(clanId, clanName, clanSign) {
+    $("#btn-clan").text(clanSign);
+    $("#btn-clan").attr("data-clanId", clanId);
 }
