@@ -15,7 +15,7 @@
         })
 
         window.location.href = '/player?' + query.toString();
-    })
+    });
 };
 
 async function initPage(instanceId) {

@@ -1,0 +1,43 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+
+    <div>
+        <h1 id="clan-name">
+            <span><!--Clan name--></span>   [<span><!--Clan sign--></span>]
+        </h1>
+        <h4 id="clan-desc">
+            <!--Clan sign-->
+        </h4>
+    </div>
+
+    <div class="position-absolute top-0 end-0">
+        <p id="clan-creation-date"></p>
+    </div>
+
+    <div>
+        <h2>
+            <span id="clan-size">0</span>
+            <span> members</span>
+        </h2>
+
+
+        <table class="table" id="members-table">
+            <thead>
+            <tr>
+                <th></th>
+                <th>KD</th>
+                <th>KAD</th>
+            </tr>
+            </thead>
+            <tbody>
+                <!--Dynamic row-->
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}
+
+{% block content_script %}
+    <script src="{{url_for('static', filename='clanReport.js')}}"></script>
+{% endblock %}

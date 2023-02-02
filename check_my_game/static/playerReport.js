@@ -6,10 +6,23 @@ window.onload = (event) => {
     let searchParams = new URLSearchParams(window.location.search);
     let membershipId = searchParams.get('membership_id');
     let membershipType = searchParams.get('membership_type');
+    // let originCharacterId = searchParams.get('characterId'); // From carnage report
     let displayName = searchParams.get('display_name');
     let displayNameCode = searchParams.get('display_name_code');
 
     initPage(membershipId, membershipType, displayName, displayNameCode);
+
+    // Callback to see clan page
+    $(document).on('click', '#btn-clan', function () {
+        let clanInfo = $(this).data();
+
+        let query = new URLSearchParams();
+        $.each(clanInfo, function (info, value) {
+            query.append(info, value);
+        })
+
+        window.location.href = '/clan?' + query.toString();
+    })
 
     // Callbacks on carnage report click
     $(document).on('click', '.btn-carnage', function () {
@@ -24,7 +37,7 @@ window.onload = (event) => {
     })
 
     // Add delay between clicks on refresh buttons
-    $(document).on('click', '', function () {
+    $(document).on('click', '.btn-refresh', function () {
         $(".btn-refresh").each(function (_, btn) {
             $(btn).attr("disabled", true);
             setTimeout(() => { $(btn).attr("disabled", false); }, 2000);
@@ -275,11 +288,19 @@ function fillCharacters(charactersData) {
         ++i;
     }
 
-    // Select the most recent played character
-    $("#character-select").val(lastPlayed["characterId"]);
+    // Select the most recent played character or the chosen one in query params
+    let searchParams = new URLSearchParams(window.location.search);
+    let originCharacterId = searchParams.get('characterId'); // From carnage report
+    if (originCharacterId){
+        $("#character-select").val(originCharacterId);
+    } else{
+        $("#character-select").val(lastPlayed["characterId"]);
+    }
+
 }
 
 function fillClan(clanId, clanName, clanSign) {
-    $("#btn-clan").text(clanSign);
-    $("#btn-clan").attr("data-clanId", clanId);
+    const btnClan = $("#btn-clan");
+    btnClan.text(clanSign);
+    btnClan.attr("data-group_id", clanId);
 }

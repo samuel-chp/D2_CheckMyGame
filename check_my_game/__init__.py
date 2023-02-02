@@ -20,6 +20,10 @@ def create_app(test_config=None):
     def carnageReport():
         return render_template('carnageReport.html')
 
+    @app.route('/clan')
+    def clan():
+        return render_template('clan.html')
+
     return app
 
 # flask --app check_my_game --debug run

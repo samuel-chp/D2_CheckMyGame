@@ -2,7 +2,7 @@
     constructor(secret_key) {
         this.secret_key = secret_key;
         this.endpoint = "https://www.bungie.net";
-        
+
         // Tokens and rate for bungie api
         this.rate = 20  // Max number of calls per second, Bungie tells us it's 25 but to be sure...
         this.maxTokens = 20
@@ -28,17 +28,20 @@
         }
     }
 
-    async searchPlayer(displayName, displayNameCode) {
+    async _get(path, searchParams={}) {
         await this.waitForToken();
+
+        let url = new URL(`Platform${path}`, this.endpoint);
+        for (const param in searchParams){
+            url.searchParams.append(param, searchParams[param]);
+        }
+
         try {
             return await $.ajax({
-                    url: new URL('Platform/Destiny2/SearchDestinyPlayerByBungieName/all/', this.endpoint).href,
-                    type: "POST",
+                    url: url.href,
+                    cache: false,
+                    type: "GET",
                     headers: {'X-API-Key': this.secret_key},
-                    data: JSON.stringify({
-                        "displayName": displayName,
-                        "displayNameCode": displayNameCode,
-                    }),
                     datatype: 'json',
                 }
             );
@@ -47,23 +50,44 @@
         }
     }
 
-    async fetchPlayerProfile(membershipId, membershipType) {
+    async _post(path, data={}, searchParams={}) {
         await this.waitForToken();
-        
-        let targetURL = new URL(`Platform/Destiny2/${membershipType}/Profile/${membershipId}/`, this.endpoint);
-        targetURL.searchParams.append("components", "Characters");
+
+        let url = new URL(`Platform${path}`, this.endpoint);
+        for (const param in searchParams){
+            url.searchParams.append(param, searchParams[param]);
+        }
 
         try {
             return await $.ajax({
-                    url: targetURL.href,
-                    type: "GET",
+                    url: url.href,
+                    cache: false,
+                    type: "POST",
                     headers: {'X-API-Key': this.secret_key},
+                    data: JSON.stringify(data),
                     datatype: 'json',
                 }
-            )
+            );
         } catch (error) {
             console.error(error);
         }
+    }
+
+    async searchPlayer(displayName, displayNameCode) {
+        let path = "/Destiny2/SearchDestinyPlayerByBungieName/all/";
+        let data = {
+            "displayName": displayName,
+            "displayNameCode": displayNameCode,
+        };
+        return await this._post(path, data);
+    }
+
+    async fetchPlayerProfile(membershipId, membershipType) {
+        let path = `/Destiny2/${membershipType}/Profile/${membershipId}/`;
+        let searchParams = {
+            "components": "Characters"
+        };
+        return await this._get(path, searchParams);
     }
 
     async fetchPlayerStats(membershipId,
@@ -74,43 +98,26 @@
                            groups = "",
                            modes = "",
                            periodType = "") {
-        await this.waitForToken();
-        
-        let targetURL = new URL(`Platform/Destiny2/${membershipType}/Account/${membershipId}/Character/${characterId}/Stats/`, this.endpoint);
+        let path = `/Destiny2/${membershipType}/Account/${membershipId}/Character/${characterId}/Stats`;
+        let searchParams = {};
         {
             if (daystart !== "") {
-                targetURL.searchParams.append("daystart", daystart);
+                searchParams.append("daystart", daystart);
             }
             if (dayend !== "") {
-                targetURL.searchParams.append("dayend", dayend);
+                searchParams.append("dayend", dayend);
             }
             if (groups !== "") {
-                targetURL.searchParams.append("groups", groups);
+                searchParams.append("groups", groups);
             }
             if (modes !== "") {
-                targetURL.searchParams.append("modes", modes);
+                searchParams.append("modes", modes);
             }
             if (periodType !== "") {
-                targetURL.searchParams.append("periodType", periodType);
+                searchParams.append("periodType", periodType);
             }
         }
-
-        try {
-            return await $.ajax({
-                url: targetURL.href,
-                type: "GET",
-                headers: {'X-API-Key': this.secret_key},
-                datatype: 'json',
-                success: function (result) {
-                    // console.log(result);
-                },
-                error: function (error) {
-                    // console.log(error);
-                }
-            });
-        } catch (error) {
-            console.error(error);
-        }
+        return await this._get(path, searchParams);
     }
 
     async fetchActivityHistory(membershipId,
@@ -119,106 +126,42 @@
                                mode = 5,
                                page = 0,
                                count = 250) {
-        await this.waitForToken();
-        
-        // Clamp to max accepted by the API
-        count = Math.min(count, 250);
-
-        let targetURL = new URL(`Platform/Destiny2/${membershipType}/Account/${membershipId}/Character/${characterId}/Stats/Activities`, this.endpoint);
-        targetURL.searchParams.append("mode", mode);
-        targetURL.searchParams.append("page", page);
-        targetURL.searchParams.append("count", count);
-
-        try {
-            return await $.ajax({
-                url: targetURL.href,
-                type: "GET",
-                headers: {'X-API-Key': this.secret_key},
-                datatype: 'json',
-                success: function (result) {
-                    // console.log(result);
-                },
-                error: function (error) {
-                    // console.log(error);
-                }
-            });
-        } catch (error) {
-            console.error(error);
+        let path = `/Destiny2/${membershipType}/Account/${membershipId}/Character/${characterId}/Stats/Activities`;
+        let searchParams = {
+            "mode": mode,
+            "page": page,
+            "count": Math.min(count, 250), // Clamp to max accepted by the API
         }
+        return await this._get(path, searchParams);
     }
 
     async fetchEntityDefinition(entityType, hashIdentifier) {
-        await this.waitForToken();
-        
-        let targetURL = new URL(`Platform/Destiny2/Manifest/${entityType}/${hashIdentifier}`, this.endpoint);
-
-        try {
-            return await $.ajax({
-                url: targetURL.href,
-                type: "GET",
-                headers: {'X-API-Key': this.secret_key},
-                datatype: 'json',
-                success: function (result) {
-                    // console.log(result);
-                },
-                error: function (error) {
-                    // console.log(error);
-                }
-            });
-        } catch (error) {
-            console.error(error);
-        }
+        let path = `/Destiny2/Manifest/${entityType}/${hashIdentifier}`;
+        return await this._get(path);
     }
 
     async fetchMapDefinition(referenceId) {
-        await this.waitForToken();
         return await this.fetchEntityDefinition("DestinyActivityDefinition", referenceId);
     }
-    
+
     async fetchCarnageReport(instanceId) {
-        await this.waitForToken();
-
-        let targetURL = new URL(`Platform/Destiny2/Stats/PostGameCarnageReport/${instanceId}/`, this.endpoint);
-
-        try {
-            return await $.ajax({
-                url: targetURL.href,
-                type: "GET",
-                headers: {'X-API-Key': this.secret_key},
-                datatype: 'json',
-                success: function (result) {
-                    // console.log(result);
-                },
-                error: function (error) {
-                    // console.log(error);
-                }
-            });
-        } catch (error) {
-            console.error(error);
-        }
+        let path = `/Destiny2/Stats/PostGameCarnageReport/${instanceId}/`;
+        return await this._get(path);
     }
 
     async fetchClanFromMember(membershipId, membershipType) {
-        await this.waitForToken();
+        let path = `/GroupV2/User/${membershipType}/${membershipId}/0/1/`;
+        return await this._get(path);
+    }
 
-        let targetURL = new URL(`Platform/GroupV2/User/${membershipType}/${membershipId}/0/1/ `, this.endpoint);
+    async fetchClanMembers(groupId) {
+        let path = `/GroupV2/${groupId}/Members/`;
+        return await this._get(path);
+    }
 
-        try {
-            return await $.ajax({
-                url: targetURL.href,
-                type: "GET",
-                headers: {'X-API-Key': this.secret_key},
-                datatype: 'json',
-                success: function (result) {
-                    // console.log(result);
-                },
-                error: function (error) {
-                    // console.log(error);
-                }
-            });
-        } catch (error) {
-            console.error(error);
-        }
+    async fetchClan(groupId) {
+        let path = `/GroupV2/${groupId}`;
+        return await this._get(path);
     }
 
     getClassTypeStr(classType) {
@@ -320,25 +263,12 @@
         };
         return d[gamemodeInt];
     }
-    
-    getPvPMapInfo(referenceId) {
-        // TODO
-        const d = {
-            "1": {
-                name: "Javelin-4",
-                pgcrImage: "/img/destiny_content/pgcr/crucible_shaft.jpg",
-                description: "Warsat Launch Facility, Io",
-            },
-        };
-        
-        return d[referenceId];
-    }
 }
 
 class Guardian {
     static seasonStartDate = new Date("2022-12-06");
 
-    constructor(membershipId, membershipType, displayName="", displayNameCode="") {
+    constructor(membershipId, membershipType, displayName = "", displayNameCode = "") {
         this.membershipId = membershipId;
         this.membershipType = membershipType;
         this.displayName = displayName;
@@ -347,9 +277,9 @@ class Guardian {
         this.characters = {};
         this.activities = {};
         this.clan = {
-            clanId : null,
+            clanId: null,
             clanName: "",
-            clanSign : "",
+            clanSign: "",
         }
     }
 
@@ -413,13 +343,13 @@ class Guardian {
         endPage = Math.min(endPage, 200);
 
         // Ensure characterId exists
-        if (!(characterId in this.activities)){
+        if (!(characterId in this.activities)) {
             this.activities[characterId] = [];
         }
 
         // Call Bungie API
         let tasks = [];
-        for (let i=startPage; i<endPage; i++){
+        for (let i = startPage; i < endPage; i++) {
             tasks.push(bungieAPI.fetchActivityHistory(this.membershipId, this.membershipType, characterId, 5, i));
         }
         let results = await Promise.all(tasks); // Increase speed
@@ -462,9 +392,18 @@ class Guardian {
                     }
                 };
 
+                // TODO: prevent cache
+
                 this.activities[characterId].push(activityData);
             }
         }
+
+        // Ensure array is sorted reverse chronologically
+        this.activities[characterId].sort((a, b) => {
+            let d1 = new Date(a.period);
+            let d2 = new Date(b.period);
+            return (d1 < d2) ? 1 : ((d2 > d1) ? -1 : 0);
+        });
 
         // Store in session after each data fetch
         this.save();
@@ -534,7 +473,7 @@ class Guardian {
      */
     getStatsWeekly(characterId, gamemode) {
         let lastReset = new Date();
-        if (lastReset.getDay() === 2){
+        if (lastReset.getDay() === 2) {
             lastReset.setDate(lastReset.getDate() - 7);
         } else {
             lastReset.setDate(lastReset.getDate() - (lastReset.getDay() + 5) % 7);
