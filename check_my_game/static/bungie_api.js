@@ -28,13 +28,15 @@
         }
     }
 
-    async _get(path, searchParams={}) {
+    async _get(path, searchParams = {}) {
         await this.waitForToken();
 
         let url = new URL(`Platform${path}`, this.endpoint);
-        for (const param in searchParams){
+        for (const param in searchParams) {
             url.searchParams.append(param, searchParams[param]);
         }
+
+        // TODO: bug sometimes on requests _
 
         try {
             return await $.ajax({
@@ -46,15 +48,18 @@
                 }
             );
         } catch (error) {
+            if (error.readyState === 0) {
+                return null;
+            }
             console.error(error);
         }
     }
 
-    async _post(path, data={}, searchParams={}) {
+    async _post(path, data = {}, searchParams = {}) {
         await this.waitForToken();
 
         let url = new URL(`Platform${path}`, this.endpoint);
-        for (const param in searchParams){
+        for (const param in searchParams) {
             url.searchParams.append(param, searchParams[param]);
         }
 
@@ -69,6 +74,9 @@
                 }
             );
         } catch (error) {
+            if (error.readyState === 0) {
+                return null;
+            }
             console.error(error);
         }
     }
@@ -274,13 +282,15 @@ class Guardian {
         this.displayName = displayName;
         this.displayNameCode = displayNameCode;
 
+        this.playerId = this.getPlayerId(); // redundant but necessary for db
         this.characters = {};
         this.activities = {};
         this.clan = {
             clanId: null,
             clanName: "",
             clanSign: "",
-        }
+        };
+        this.lastUpdate = new Date("2015");
     }
 
     static getPlayerId(membershipId, membershipType) {
@@ -300,6 +310,10 @@ class Guardian {
     }
 
     getLastPlayedCharacter() {
+        if (this.characters.length === 0) {
+            return null;
+        }
+
         let lastPlayed = {characterId: null, date: new Date("2010")};
         for (let characterId in this.characters) {
             let dateLastPlayed = new Date(this.characters[characterId]["dateLastPlayed"]);
@@ -313,11 +327,18 @@ class Guardian {
 
     async fetchCharacters() {
         const r = await bungieAPI.fetchPlayerProfile(this.membershipId, this.membershipType);
-        this.characters = r["Response"]["characters"]["data"];
+
+        if (r !== null){
+            this.characters = r["Response"]["characters"]["data"];
+        }
     }
 
     async fetchClan() {
         const clanInfo = await bungieAPI.fetchClanFromMember(this.membershipId, this.membershipType);
+
+        if (clanInfo === null) {
+            return null;
+        }
 
         // Ensure player has a clan
         if (clanInfo["Response"]["results"].length === 0) {
@@ -355,6 +376,10 @@ class Guardian {
         let results = await Promise.all(tasks); // Increase speed
 
         for (const result of results) {
+            if (result === null) {
+                continue;
+            }
+
             // Check empty response on page 0
             if (Object.keys(result["Response"]).length === 0) {
                 break;
@@ -483,10 +508,113 @@ class Guardian {
     }
 
     save() {
-        let guardians = getSessionVariable("guardians");
-        guardians[this.getPlayerId()] = this;
-        guardians[this.getPlayerId()].lastUpdate = new Date();
-        setSessionVariable("guardians", guardians);
+        localDb.addGuardian(this);
+    }
+}
+
+class LocalDB {
+    static OPEN_TIMEOUT = 3000;
+
+    constructor(name, version) {
+        this.name = name;
+        this.version = version;
+        this.db = null;
+        this.ready = false;
+    }
+
+    wrapRequest(request) {
+      return new Promise((resolve, reject) => {
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async waitForOpenDB() {
+        let timeOut = 0;
+        while (!this.ready) {
+            await sleep(100);
+            timeOut += 100;
+            if (timeOut >= LocalDB.OPEN_TIMEOUT) {
+                console.error("LocalDB couldn't be opened.");
+                return;
+            }
+        }
+    }
+
+    async openDB() {
+        let instance = this;
+        let openRequest = indexedDB.open(this.name, this.version);
+
+        openRequest.onupgradeneeded = function () {
+            instance.db = openRequest.result;
+            instance.initializeDB();
+        };
+
+        openRequest.onerror = function () {
+            console.error("Error", openRequest.error);
+        };
+
+        openRequest.onsuccess = function () {
+            instance.db = openRequest.result;
+            instance.ready = true;
+        };
+
+        return openRequest;
+    }
+
+    async deleteDB() {
+        await indexedDB.deleteDatabase(this.name);
+        this.db = null;
+    }
+
+    async initializeDB() {
+        let createObjectsTasks = [
+            this.db.createObjectStore('guardians', {keyPath: 'playerId'}),
+            this.db.createObjectStore('carnageReports', {keyPath: 'instanceId'}),
+            this.db.createObjectStore('maps', {keyPath: 'referenceId'}),
+        ];
+        let results = await Promise.all(createObjectsTasks);
+        // db.deleteObjectStore('books');
+    }
+
+    async putElement(store, value) {
+        await this.waitForOpenDB();
+        let transaction = this.db.transaction(store, "readwrite");
+        let objStore = transaction.objectStore(store);
+
+        let request = objStore.put(value);
+        return this.wrapRequest(request);
+    }
+
+    async getElement(store, elementId) {
+        await this.waitForOpenDB();
+        let transaction = this.db.transaction(store, "readwrite");
+        let objStore = transaction.objectStore(store);
+        return this.wrapRequest(objStore.get(elementId));
+    }
+
+    async addGuardian(guardian) {
+        return this.putElement("guardians", guardian);
+    }
+
+    async getGuardian(playerId) {
+        return this.getElement("guardians", playerId);
+    }
+
+    async addCarnageReport(carnageReport) {
+        return this.putElement("carnageReports", carnageReport);
+    }
+
+    async getCarnageReport(instanceId) {
+        return this.getElement("carnageReports", instanceId);
+    }
+
+    async addMapPvP(mapPvP) {
+        return this.putElement("maps", mapPvP);
+    }
+
+    async getMapPvP(referenceId) {
+        return this.getElement("maps", referenceId);
     }
 }
 
@@ -532,3 +660,6 @@ function clearSession() {
 
 
 bungieAPI = new BungieAPI('d1afcba184f644bdb4a4bb4a09e51e50');
+
+localDb = new LocalDB("CheckMyGame", 1);
+localDb.openDB();

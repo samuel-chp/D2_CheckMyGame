@@ -1,4 +1,6 @@
-﻿window.onload = (event) => {
+﻿var report;
+
+window.onload = (event) => {
     // Read query params
     let searchParams = new URLSearchParams(window.location.search);
     let instanceId = searchParams.get('instance_id');
@@ -19,7 +21,22 @@
 };
 
 async function initPage(instanceId) {
-    const report = (await bungieAPI.fetchCarnageReport(instanceId))["Response"];
+    // Check if guardian exist in DB
+    let result = await localDb.getCarnageReport(instanceId);
+    if (result) {
+        // Report found in DB
+        report = result;
+    } else {
+        // Fetch report from bungie
+        const request = await bungieAPI.fetchCarnageReport(instanceId);
+        if (request === null) {
+            console.error("Couldn't fetch carnage report from api.");
+            return;
+        }
+        report = request["Response"];
+        report["instanceId"] = instanceId;
+        localDb.addCarnageReport(report);
+    }
 
     const teamScore = {
         winner: {

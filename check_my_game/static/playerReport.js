@@ -48,21 +48,20 @@ window.onload = (event) => {
 async function initPage(membershipId, membershipType, displayName, displayNameCode) {
     fillName(displayName, displayNameCode);
 
-    // Init guardian
-    let guardians = getSessionVariable("guardians");
+    // Check if guardian exist in DB
     let playerId = Guardian.getPlayerId(membershipId, membershipType);
-    // Ensure it's not too old as well
-    if ((playerId in guardians) && (dateDiffInDays(new Date(guardians[playerId].lastUpdate), new Date()) < 1)) {
-        guardian = Guardian.fromJSONObject(guardians[playerId]);
+    let result = await localDb.getGuardian(playerId);
+    if (result) { // no need to check for lastUpdate as we update anyway later
+        // Guardian found in DB
+        guardian = Guardian.fromJSONObject(result);
         fillCharacters(guardian.characters);
         fillClan(guardian.clan.clanId, guardian.clan.clanName, guardian.clan.clanSign);
         refreshActivities();
     } else {
-        // Populate new guardian
         guardian = new Guardian(membershipId, membershipType, displayName, displayNameCode);
     }
 
-    // For safety reload everything
+    // For safety reload everything (only on page load)
     await guardian.fetchCharacters();
     fillCharacters(guardian.characters);
     guardian.fetchClan().then(() => fillClan(guardian.clan.clanId, guardian.clan.clanName, guardian.clan.clanSign));
@@ -82,19 +81,12 @@ function fetchActivities() {
     // First select the parameters that require less data (weekly)
     $('#period-select').val("weekly");
 
-    // Populate incrementally
-    // First weekly for selected character
-    guardian.populateCharacterActivities(currentCharacterId, 0, 100, 250)
-        .then(() => fillTables());
+    // Populate all
     for (let characterId of characterIds) {
-        // Seasonal
-        guardian.populateCharacterActivities(characterId, 0, 15, 250)
-            .then(() => fillTables());
         // all time
-        guardian.populateCharacterActivities(characterId, 15, 100, 250)
+        guardian.populateCharacterActivities(characterId, 0, 100, 250)
             .then(() => fillTables());
     }
-
 }
 
 async function refreshActivities() {
@@ -231,6 +223,7 @@ function addCarnageReportToTable(report) {
 
 // MAPS
 async function updateMapInfo() {
+    // TODO: use indexed DB
     // Load mapInfo
     mapInfo = getSessionVariable("mapInfo");
 
@@ -248,6 +241,7 @@ async function updateMapInfo() {
     for (let r of results) {
         r = r["Response"];
         mapInfo[r["hash"]] = {
+            referenceId: r["hash"],
             name: r["displayProperties"]["name"],
             description: r["displayProperties"]["description"],
             image: r["pgcrImage"]
