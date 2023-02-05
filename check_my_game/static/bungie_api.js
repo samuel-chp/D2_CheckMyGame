@@ -172,7 +172,7 @@
         return await this._get(path);
     }
 
-    getClassTypeStr(classType) {
+    static getClassTypeStr(classType) {
         if (classType === 0) {
             return "Titan";
         } else if (classType === 1) {
@@ -183,7 +183,7 @@
         return "";
     }
 
-    getGamemodeStr(gamemodeInt) {
+    static getGamemodeStr(gamemodeInt) {
         const d = {
             "2": "Story",
             "3": "Strike",
@@ -271,6 +271,22 @@
         };
         return d[gamemodeInt];
     }
+    
+    static getMembershipTypeStr(membershipType) {
+        const membershipTypePlatform = {
+                0: "None",
+                1: "Xbox",
+                2: "Playstation",
+                3: "Steam",
+                4: "Blizzard",
+                5: "Stadia",
+                6: "Egs",
+                10: "Demon",
+                254: "Bungie Next",
+                "-1": "All",
+        }
+        return membershipTypePlatform[membershipType];
+    }
 }
 
 class Guardian {
@@ -328,7 +344,7 @@ class Guardian {
     async fetchCharacters() {
         const r = await bungieAPI.fetchPlayerProfile(this.membershipId, this.membershipType);
 
-        if (r !== null){
+        if (r){
             this.characters = r["Response"]["characters"]["data"];
         }
     }

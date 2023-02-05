@@ -10,7 +10,29 @@
         An error has occurred when contacting BungieAPI.
         <button type="button" id="search-alert-close-btn" class="btn-close alert-close" aria-label="Close"></button>
     </div>
-    
+
+    <!-- Modal -->
+    <div id="platformModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Choose platform</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Some text in the modal.</p>
+                    {# Dynamically added here #}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
 {% endblock %}
 
 {% block content_script %}
@@ -21,22 +43,43 @@
             $(document).on('click', '.alert-close', function () {
                 $(this).parent().hide();
             })
-            
+
             // on search player
             $('#player-search-input').keydown(function (event) {
                 if (event.which === 13) {
                     searchPlayer($(this).val());
                 }
             });
+
+            // Callback on select platform btn
+            $(document).on('click', '.btn-platform', function () {
+                window.location.href = $(this).data()["target_url"];
+            })
         };
-        
-        function showAlert(message){
+
+        function showAlert(message) {
             const alert = $('#search-alert');
             alert.text(message);
-            
+
             alert.clearQueue();
             alert.show();
             alert.delay(5000).fadeOut(800);
+        }
+
+        function showModal(profiles, query) {
+            for (const profile of profiles) {
+                query.set("membership_id", profile["membershipId"]);
+                query.set("membership_type", profile["membershipType"]);
+                let template = `
+                    <button type="button" class="btn btn-dark btn-platform" data-target_url=${'/player?' + query.toString()}>
+                        ${BungieAPI.getMembershipTypeStr([profile["membershipType"]])}
+                    </button>
+                `;
+                $('.modal-body').append(template);
+            }
+            $("#platformModal").modal('show');
+            
+            // TODO: close modal
         }
 
         async function searchPlayer(playerName) {
@@ -45,17 +88,22 @@
             if (result) {
                 if (result["ErrorCode"] !== 1 || result["Response"].length == 0) {
                     showAlert(`Player ${playerName} not found.`);
-                }
-                else
-                {
-                    // TODO: handle multiple membership types
-                    // redirect towards player page
+                } else {
+                    // Init query
                     let query = new URLSearchParams();
                     query.append("membership_id", result["Response"][0]["membershipId"]);
                     query.append("membership_type", result["Response"][0]["membershipType"]);
                     query.append("display_name", displayName);
                     query.append("display_name_code", displayNameCode);
-                    window.location.href = '/player?' + query.toString();
+                    
+                    // Check if player played on different platforms
+                    if (result["Response"].length > 1) {
+                        console.log("multiple platforms!");
+                        showModal(result["Response"], query);
+                    } else {
+                        console.log("single platform!");
+                        window.location.href = '/player?' + query.toString();
+                    }
                 }
             }
         }
