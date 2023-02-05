@@ -1,5 +1,4 @@
-﻿var mapInfo = {};
-var guardian = {};
+﻿var guardian = {};
 
 window.onload = (event) => {
     // Parse query params
@@ -223,38 +222,42 @@ function addCarnageReportToTable(report) {
 
 // MAPS
 async function updateMapInfo() {
-    // TODO: use indexed DB
-    // Load mapInfo
-    mapInfo = getSessionVariable("mapInfo");
-
-    // Fetch map info from referenceId from api
-    let fetchMapInfoTasks = [];
-    for (const element of $("[data-reference_id]")) {
-        const referenceId = $(element).data()["reference_id"];
-        if (!mapInfo.hasOwnProperty(referenceId)){
-            fetchMapInfoTasks.push(bungieAPI.fetchMapDefinition(referenceId));
+    // Get referenceIds needed
+    let referenceIds = [];
+    for (const element of $(".btn-carnage [data-reference_id]")) {
+        referenceIds.push($(element).data()["reference_id"]);
+    }
+    
+    // Fetch from DB or prepare tasks for bungie
+    let maps = {};
+    let fetchMapTasks = [];
+    for (const refId of referenceIds) {
+        let result = await localDb.getMapPvP(refId);
+        if (result) {
+            maps[refId] = result;
+        } else {
+            fetchMapTasks.push(bungieAPI.fetchMapDefinition(refId));
         }
     }
-    let results = await Promise.all(fetchMapInfoTasks);
     
-    // Populate dict
+    // Call bungie
+    let results = await Promise.all(fetchMapTasks);
     for (let r of results) {
         r = r["Response"];
-        mapInfo[r["hash"]] = {
+        let map = {
             referenceId: r["hash"],
             name: r["displayProperties"]["name"],
             description: r["displayProperties"]["description"],
             image: r["pgcrImage"]
         };
+        maps[map.referenceId] = map;
+        localDb.addMapPvP(map);
     }
-
-    // Save mapInfo
-    setSessionVariable("mapInfo", mapInfo);
     
     // Update table
-    for (const element of $("[data-reference_id]")) {
+    for (const element of $(".btn-carnage [data-reference_id]")) {
         const referenceId = $(element).data()["reference_id"];
-        $(element).text(mapInfo[referenceId]["name"]);
+        $(element).text(maps[referenceId]["name"]);
     }
 }
 
