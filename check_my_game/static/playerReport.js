@@ -167,7 +167,7 @@ function fillCarnageReportTable() {
             // To add win and lose score, we must fetch the carnage report entirely...
             let report = {
                 instanceId: activity["instanceId"],
-                gamemode: bungieAPI.getGamemodeStr(activity["mode"]),
+                gamemode: BungieAPI.getGamemodeStr(activity["mode"]),
                 date: activity["period"],
                 map: activity["referenceId"],
                 personalKD: activity["values"]["kills"] / activity["values"]["deaths"],
@@ -280,7 +280,7 @@ function fillCharacters(charactersData) {
 
         // Fill options
         let option = $(`#character-select option:nth-of-type(${i})`);
-        option.text(`${bungieAPI.getClassTypeStr(charactersData[characterId]["classType"])}   ${charactersData[characterId]["light"]}`);
+        option.text(`${BungieAPI.getClassTypeStr(charactersData[characterId]["classType"])}   ${charactersData[characterId]["light"]}`);
         option.attr("value", characterId);
         ++i;
     }

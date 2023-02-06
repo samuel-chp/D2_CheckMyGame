@@ -392,7 +392,7 @@ class Guardian {
         let results = await Promise.all(tasks); // Increase speed
 
         for (const result of results) {
-            if (result === null) {
+            if (!result) {
                 continue;
             }
 
