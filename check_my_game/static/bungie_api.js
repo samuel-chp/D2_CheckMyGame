@@ -300,7 +300,7 @@ class Guardian {
 
         this.playerId = this.getPlayerId(); // redundant but necessary for db
         this.characters = {};
-        this.activities = {};
+        this.activities = new Map();
         this.clan = {
             clanId: null,
             clanName: "",
@@ -316,7 +316,7 @@ class Guardian {
     static fromJSONObject(obj) {
         let guardian = new Guardian(obj.membershipId, obj.membershipType, obj.displayName, obj.displayNameCode);
         guardian.characters = obj.characters;
-        guardian.activities = obj.activities;
+        guardian.activities = obj.activities; // TODO: check with change to map
         guardian.clan = obj.clan;
         return guardian;
     }
@@ -380,8 +380,8 @@ class Guardian {
         endPage = Math.min(endPage, 200);
 
         // Ensure characterId exists
-        if (!(characterId in this.activities)) {
-            this.activities[characterId] = [];
+        if (!this.activities.has(characterId)) {
+            this.activities.set(characterId, new Map());
         }
 
         // Call Bungie API
@@ -390,7 +390,7 @@ class Guardian {
             tasks.push(bungieAPI.fetchActivityHistory(this.membershipId, this.membershipType, characterId, 5, i));
         }
         let results = await Promise.all(tasks); // Increase speed
-
+        
         for (const result of results) {
             if (!result) {
                 continue;
@@ -411,7 +411,7 @@ class Guardian {
                 }
 
                 // Ensure it's not already here
-                if (this.activities[characterId].filter(a => a.instanceId === activity["activityDetails"]["instanceId"]).length > 0) {
+                if (this.activities.get(characterId).has(activity["activityDetails"]["instanceId"])){
                     continue;
                 }
 
@@ -435,17 +435,10 @@ class Guardian {
 
                 // TODO: prevent cache
 
-                this.activities[characterId].push(activityData);
+                this.activities.get(characterId).set(activityData.instanceId, activityData);
             }
         }
-
-        // Ensure array is sorted reverse chronologically
-        this.activities[characterId].sort((a, b) => {
-            let d1 = new Date(a.period);
-            let d2 = new Date(b.period);
-            return (d1 < d2) ? 1 : ((d2 > d1) ? -1 : 0);
-        });
-
+        
         // Store in session after each data fetch
         this.save();
     }
@@ -463,9 +456,11 @@ class Guardian {
             "secondsPlayed": 0,
             "score": 0,
         };
+        
+        let activitySubset = [...this.activities.get(characterId).values()].filter(a => a.period >= startDate && a.period <= endDate);
 
         // Aggregate
-        for (const activity of this.activities[characterId]) {
+        for (const activity of activitySubset) {
             let period = new Date(activity["period"]);
 
             // Check date
@@ -521,6 +516,23 @@ class Guardian {
         }
         lastReset.setHours(17, 0, 0);
         return this._aggregateStats(characterId, gamemode, lastReset, new Date());
+    }
+    
+    getLastGames(characterId, gamemode, maxNGames) {
+        // Select by gamemode
+        let selection = [...this.activities.get(characterId).values()].filter(
+            a => a.modes.includes(gamemode)
+        );
+        
+        // Sort
+        selection.sort((a, b) => {
+            let d1 = new Date(a.period);
+            let d2 = new Date(b.period);
+            return (d1 < d2) ? 1 : ((d2 > d1) ? -1 : 0);
+        });
+        
+        // Return
+        return selection.slice(0, maxNGames);
     }
 
     save() {

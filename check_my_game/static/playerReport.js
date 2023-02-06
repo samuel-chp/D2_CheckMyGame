@@ -162,23 +162,17 @@ function fillCarnageReportTable() {
 
     // Fetch activity data
     let reports = [];
-    for (const activity of guardian.activities[characterId]) {
-        if (activity["modes"].includes(gamemode)) {
-            // To add win and lose score, we must fetch the carnage report entirely...
-            let report = {
-                instanceId: activity["instanceId"],
-                gamemode: BungieAPI.getGamemodeStr(activity["mode"]),
-                date: activity["period"],
-                map: activity["referenceId"],
-                personalKD: activity["values"]["kills"] / activity["values"]["deaths"],
-                personalKAD: (activity["values"]["kills"] + activity["values"]["assists"]) / activity["values"]["deaths"],
-            };
-            reports.push(report);
-        }
-
-        if (reports.length >= n) {
-            break;
-        }
+    for (const activity of guardian.getLastGames(characterId, gamemode, n)) {
+        // To add win and lose score, we must fetch the carnage report entirely...
+        let report = {
+            instanceId: activity["instanceId"],
+            gamemode: BungieAPI.getGamemodeStr(activity["mode"]),
+            date: activity["period"],
+            map: activity["referenceId"],
+            personalKD: activity["values"]["kills"] / activity["values"]["deaths"],
+            personalKAD: (activity["values"]["kills"] + activity["values"]["assists"]) / activity["values"]["deaths"],
+        };
+        reports.push(report);
     }
 
     // Empty table rows
