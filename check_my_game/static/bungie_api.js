@@ -316,7 +316,7 @@ class Guardian {
     static fromJSONObject(obj) {
         let guardian = new Guardian(obj.membershipId, obj.membershipType, obj.displayName, obj.displayNameCode);
         guardian.characters = obj.characters;
-        guardian.activities = obj.activities; // TODO: check with change to map
+        guardian.activities = obj.activities;
         guardian.clan = obj.clan;
         return guardian;
     }

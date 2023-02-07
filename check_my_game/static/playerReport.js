@@ -11,6 +11,13 @@ window.onload = (event) => {
 
     initPage(membershipId, membershipType, displayName, displayNameCode);
 
+    // Callback when selecting another character
+    
+    $(document).on('change', '#character-select', function () {
+        fillTables();
+        refreshActivities();
+    })
+    
     // Callback to see clan page
     $(document).on('click', '#btn-clan', function () {
         let clanInfo = $(this).data();
@@ -55,7 +62,7 @@ async function initPage(membershipId, membershipType, displayName, displayNameCo
         guardian = Guardian.fromJSONObject(result);
         fillCharacters(guardian.characters);
         fillClan(guardian.clan.clanId, guardian.clan.clanName, guardian.clan.clanSign);
-        refreshActivities();
+        fillTables();
     } else {
         guardian = new Guardian(membershipId, membershipType, displayName, displayNameCode);
     }
@@ -77,9 +84,6 @@ function fetchActivities() {
         }
     }
 
-    // First select the parameters that require less data (weekly)
-    $('#period-select').val("weekly");
-
     // Populate all
     for (let characterId of characterIds) {
         // all time
@@ -89,7 +93,6 @@ function fetchActivities() {
 }
 
 async function refreshActivities() {
-    fillTables(); // Ensure data is resfreshed (changing character for instance) before actualizing
     let currentCharacterId = $('#character-select').val();
     await guardian.populateCharacterActivities(currentCharacterId, 0, 1, 100);
     fillTables();
@@ -251,6 +254,12 @@ async function updateMapInfo() {
     // Update table
     for (const element of $(".btn-carnage [data-reference_id]")) {
         const referenceId = $(element).data()["reference_id"];
+        
+        // Prevent updating old elements (due to async calls)
+        if (!referenceIds.includes(referenceId)) {
+            continue;
+        }
+        
         $(element).text(maps[referenceId]["name"]);
     }
 }
