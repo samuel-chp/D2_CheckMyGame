@@ -1,4 +1,6 @@
 var members = [];
+var founderDisplayName;
+var founderDisplayNameCode;
 
 window.onload = (event) => {
     // Parse query params
@@ -23,7 +25,6 @@ window.onload = (event) => {
 async function initPage(groupId) {
     // Fetch clan from api
     bungieAPI.fetchClanMembers(groupId).then((r) => {
-        console.log(r);
         // Populate members
         for (const m of r["Response"]["results"]) {
             const member = new Guardian(
@@ -32,7 +33,7 @@ async function initPage(groupId) {
                 m["destinyUserInfo"]["bungieGlobalDisplayName"],
                 m["destinyUserInfo"]["bungieGlobalDisplayNameCode"],
             )
-            members.push(member);
+            members.push(member); // TODO: 2 guardians for 2 membershipTypes
             addGuardianToTable(member);
         }
     });
@@ -48,6 +49,12 @@ async function initPage(groupId) {
         const ymd = creationDate.split('T')[0];
         const hm = creationDate.split('T')[1].split(':')[0] + ':' + creationDate.split('T')[1].split(':')[1];
         $('#clan-creation-date').text(`${ymd}   ${hm}`);
+        
+        founderDisplayName = r["Response"]["founder"]["destinyUserInfo"]["bungieGlobalDisplayName"];
+        founderDisplayNameCode = r["Response"]["founder"]["destinyUserInfo"]["bungieGlobalDisplayNameCode"];
+        $(`[data-display_name=${founderDisplayName}][data-display_name_code=${founderDisplayNameCode}] td button`)
+            .removeClass("btn-primary")
+            .addClass("btn-danger");
     });
 }
 
@@ -56,7 +63,9 @@ function addGuardianToTable(guardian) {
         <tr data-membership_id="${guardian.membershipId}" data-membership_type="${guardian.membershipType}"
             data-display_name="${guardian.displayName}" data-display_name_code="${guardian.displayNameCode}">
             <td>
-                <button class="btn btn-primary btn-player">
+                <button class="btn 
+${guardian.displayName === founderDisplayName && guardian.displayNameCode === founderDisplayNameCode ? "btn-danger" : "btn-primary"} 
+                                    btn-player">
                     ${guardian.displayName}#${guardian.displayNameCode}
                 </button>
             </td>

@@ -296,7 +296,6 @@ function fillCharacters(charactersData) {
     } else{
         $("#character-select").val(lastPlayed["characterId"]);
     }
-
 }
 
 function fillClan(clanId, clanName, clanSign) {
