@@ -1,4 +1,3 @@
-var members = [];
 var founderDisplayName;
 var founderDisplayNameCode;
 
@@ -32,24 +31,35 @@ async function initPage(groupId) {
                 m["destinyUserInfo"]["membershipType"],
                 m["destinyUserInfo"]["bungieGlobalDisplayName"],
                 m["destinyUserInfo"]["bungieGlobalDisplayNameCode"],
-            )
-            members.push(member); // TODO: 2 guardians for 2 membershipTypes
-            addGuardianToTable(member);
+            );
+            
+            // Check cross save
+            if (m["destinyUserInfo"]["crossSaveOverride"] !== 0) {
+                if (m["destinyUserInfo"]["membershipType"] === m["destinyUserInfo"]["crossSaveOverride"]) {
+                    addGuardianToTable(member);
+                }
+            } else {
+                addGuardianToTable(member);
+            }
         }
+        // Print clan size
+        // Do not use r["Response"]["detail"]["memberCount"] as it counts per platform 
+        // (for example 2 entries for the same player on 2 different platforms)
+        $("#clan-size").text($('#members-table tbody').children().length);
     });
 
     // Fetch clan info
     bungieAPI.fetchClan(groupId).then((r) => {
         $("#clan-name span:nth-child(1)").text(r["Response"]["detail"]["name"]);
         $("#clan-name span:nth-child(2)").text(r["Response"]["detail"]["clanInfo"]["clanCallsign"]);
-        $("#clan-desc").text(r["Response"]["detail"]["about"]);
-        $("#clan-size").text(r["Response"]["detail"]["memberCount"]);
-
+        $("#clan-desc").text(r["Response"]["detail"]["motto"]);
+        
         const creationDate = (new Date(r["Response"]["detail"]["creationDate"])).toISOString();
         const ymd = creationDate.split('T')[0];
         const hm = creationDate.split('T')[1].split(':')[0] + ':' + creationDate.split('T')[1].split(':')[1];
         $('#clan-creation-date').text(`${ymd}   ${hm}`);
         
+        // Set founder color
         founderDisplayName = r["Response"]["founder"]["destinyUserInfo"]["bungieGlobalDisplayName"];
         founderDisplayNameCode = r["Response"]["founder"]["destinyUserInfo"]["bungieGlobalDisplayNameCode"];
         $(`[data-display_name=${founderDisplayName}][data-display_name_code=${founderDisplayNameCode}] td button`)

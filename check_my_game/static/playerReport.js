@@ -68,9 +68,34 @@ window.onload = (event) => {
 
 async function fetchGuardianPlatforms(displayName, displayNameCode) {
     let guardianInfo = await bungieAPI.searchPlayer(displayName, displayNameCode);
+    
     if (guardianInfo && guardianInfo["Response"].length > 1) {
-        for (let info of guardianInfo["Response"]) {
-            addPlatform(info["membershipId"], info["membershipType"]);
+        if (guardianInfo["Response"][0]["crossSaveOverride"] !== 0) {
+            // Cross save enabled
+            const membershipType = guardianInfo["Response"][0]["crossSaveOverride"];
+            let membershipId;
+            for (let info of guardianInfo["Response"]) {
+                if (info["membershipType"] === membershipType) {
+                    membershipId = info["membershipId"];
+                }
+            }
+            if (!membershipId) {
+                console.error("Couldn't find matching platform.");
+            }
+            if (guardian.getPlayerId() !== Guardian.getPlayerId(membershipId, membershipType)) {
+                // Redirect towards cross save page
+                let query = new URLSearchParams();
+                query.append("membership_id", membershipId);
+                query.append("membership_type", membershipType);
+                query.append("display_name", guardian.displayName);
+                query.append("display_name_code", guardian.displayNameCode);
+                window.location.href = '/player?' + query.toString();
+            }
+        } else {
+            // No cross save enabled
+            for (let info of guardianInfo["Response"]) {
+                addPlatform(info["membershipId"], info["membershipType"]);
+            }
         }
     }
 }
@@ -311,6 +336,7 @@ function fillName(displayName, displayNameCode) {
 }
 
 function fillCharacters(charactersData) {
+    $('#character-select').empty();
     let i = 1;
     let lastPlayed = {characterId: null, date: new Date("2010")};
     for (let characterId in charactersData) {
@@ -322,10 +348,12 @@ function fillCharacters(charactersData) {
         }
 
         // Fill options
-        let option = $(`#character-select option:nth-of-type(${i})`);
-        option.text(`${BungieAPI.getClassTypeStr(charactersData[characterId]["classType"])}   ${charactersData[characterId]["light"]}`);
-        option.attr("value", characterId);
-        ++i;
+        let template = `
+            <option value="${characterId}">
+                ${BungieAPI.getClassTypeStr(charactersData[characterId]["classType"])}   ${charactersData[characterId]["light"]}
+            </option>
+        `;
+        $('#character-select').append(template);
     }
 
     // Select the most recent played character or the chosen one in query params

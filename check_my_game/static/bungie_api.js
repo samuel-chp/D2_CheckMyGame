@@ -36,7 +36,7 @@
             url.searchParams.append(param, searchParams[param]);
         }
 
-        // TODO: bug sometimes on requests _
+        // TODO: bug sometimes on requests _ param
 
         try {
             return await $.ajax({
@@ -49,9 +49,12 @@
             );
         } catch (error) {
             if (error.readyState === 0) {
+                // Page changed so no need for result
                 return null;
             }
             console.error(error);
+            console.log(url.href);
+            console.log(searchParams);
         }
     }
 
