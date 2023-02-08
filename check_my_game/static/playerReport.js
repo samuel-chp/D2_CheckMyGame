@@ -5,7 +5,6 @@ window.onload = (event) => {
     let searchParams = new URLSearchParams(window.location.search);
     let membershipId = searchParams.get('membership_id');
     let membershipType = searchParams.get('membership_type');
-    // let originCharacterId = searchParams.get('characterId'); // From carnage report TODO
     let displayName = searchParams.get('display_name');
     let displayNameCode = searchParams.get('display_name_code');
     
@@ -131,12 +130,13 @@ async function initPage(membershipId, membershipType, displayName, displayNameCo
         fillCharacters(guardian.characters);
         fillClan(guardian.clan.clanId, guardian.clan.clanName, guardian.clan.clanSign);
         fillTables();
+    } else {
+        await guardian.fetchCharacters();
+        fillCharacters(guardian.characters);
+        guardian.fetchClan().then(() => fillClan(guardian.clan.clanId, guardian.clan.clanName, guardian.clan.clanSign));
     }
 
     // For safety reload everything (only on page load)
-    await guardian.fetchCharacters();
-    fillCharacters(guardian.characters);
-    guardian.fetchClan().then(() => fillClan(guardian.clan.clanId, guardian.clan.clanName, guardian.clan.clanSign));
     fetchActivities();
 }
 
@@ -341,7 +341,7 @@ function fillCharacters(charactersData) {
     let i = 1;
     let lastPlayed = {characterId: null, date: new Date("2010")};
     for (let characterId in charactersData) {
-        // save last played character
+        // Save last played character for auto select later
         let dateLastPlayed = new Date(charactersData[characterId]["dateLastPlayed"]);
         if (dateLastPlayed > lastPlayed["date"]) {
             lastPlayed["date"] = dateLastPlayed;
@@ -359,7 +359,7 @@ function fillCharacters(charactersData) {
 
     // Select the most recent played character or the chosen one in query params
     let searchParams = new URLSearchParams(window.location.search);
-    let originCharacterId = searchParams.get('characterId'); // From carnage report
+    let originCharacterId = searchParams.get('character_id'); // From carnage report
     if (originCharacterId){
         $("#character-select").val(originCharacterId);
     } else{
