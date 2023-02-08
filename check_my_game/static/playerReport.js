@@ -77,6 +77,7 @@ async function fetchGuardianPlatforms(displayName, displayNameCode) {
             for (let info of guardianInfo["Response"]) {
                 if (info["membershipType"] === membershipType) {
                     membershipId = info["membershipId"];
+                    break;
                 }
             }
             if (!membershipId) {

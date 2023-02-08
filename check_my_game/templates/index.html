@@ -71,7 +71,11 @@
             alert.delay(5000).fadeOut(800);
         }
 
-        function showModal(profiles, query) {
+        function showModal(profiles, displayName, displayNameCode) {
+            let query = new URLSearchParams();
+            query.set("display_name", displayName);
+            query.set("display_name_code", displayNameCode);
+            
             $('.modal-body').empty();
             for (const profile of profiles) {
                 query.set("membership_id", profile["membershipId"]);
@@ -92,21 +96,30 @@
             if (result) {
                 if (result["ErrorCode"] !== 1 || result["Response"].length == 0) {
                     showAlert(`Player ${playerName} not found.`);
-                } else {
-                    // Init query
-                    let query = new URLSearchParams();
-                    query.append("membership_id", result["Response"][0]["membershipId"]);
-                    query.append("membership_type", result["Response"][0]["membershipType"]);
-                    query.append("display_name", displayName);
-                    query.append("display_name_code", displayNameCode);
-                    
-                    // Check if player played on different platforms
-                    if (result["Response"].length > 1) {
-                        showModal(result["Response"], query);
-                    } else {
-                        window.location.href = '/player?' + query.toString();
+                    return;
+                } 
+                
+                // Cross save enabled
+                if (result["Response"].length > 1 && result["Response"][0]["crossSaveOverride"] !== 0) {
+                    const targetMembershipType = result["Response"][0]["crossSaveOverride"];
+                    let membershipId;
+                    for (let info of result["Response"]) {
+                        if (info["membershipType"] === targetMembershipType) {
+                            membershipId = info["membershipId"];
+                            break;
+                        }
                     }
+                    let query = new URLSearchParams();
+                    query.set("membership_id", membershipId);
+                    query.set("membership_type", targetMembershipType);
+                    query.set("display_name", displayName);
+                    query.set("display_name_code", displayNameCode);
+                    window.location.href = '/player?' + query.toString();
+                    return;
                 }
+                
+                // Multiple platforms
+                showModal(result["Response"], displayName, displayNameCode);
             }
         }
     </script>
