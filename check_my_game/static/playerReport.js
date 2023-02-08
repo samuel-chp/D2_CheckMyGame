@@ -5,17 +5,30 @@ window.onload = (event) => {
     let searchParams = new URLSearchParams(window.location.search);
     let membershipId = searchParams.get('membership_id');
     let membershipType = searchParams.get('membership_type');
-    // let originCharacterId = searchParams.get('characterId'); // From carnage report
+    // let originCharacterId = searchParams.get('characterId'); // From carnage report TODO
     let displayName = searchParams.get('display_name');
     let displayNameCode = searchParams.get('display_name_code');
+    
+    guardian = new Guardian(membershipId, membershipType, displayName, displayNameCode);
 
     initPage(membershipId, membershipType, displayName, displayNameCode);
+    fetchGuardianPlatforms(displayName, displayNameCode);
 
     // Callback when selecting another character
-    
     $(document).on('change', '#character-select', function () {
         fillTables();
         refreshActivities();
+    })
+    
+    // Callback to change platform
+    $(document).on('change', '#platform-select', function () {
+        let playerId = $('#platform-select').val();
+        let query = new URLSearchParams();
+        query.append("membership_id", playerId.split('-')[0]);
+        query.append("membership_type", playerId.split('-')[1]);
+        query.append("display_name", displayName);
+        query.append("display_name_code", displayNameCode);
+        window.location.href = '/player?' + query.toString();
     })
     
     // Callback to see clan page
@@ -51,6 +64,35 @@ window.onload = (event) => {
     })
 };
 
+// PLATFORMS
+
+async function fetchGuardianPlatforms(displayName, displayNameCode) {
+    let guardianInfo = await bungieAPI.searchPlayer(displayName, displayNameCode);
+    if (guardianInfo && guardianInfo["Response"].length > 1) {
+        for (let info of guardianInfo["Response"]) {
+            addPlatform(info["membershipId"], info["membershipType"]);
+        }
+    }
+}
+
+function addPlatform(membershipId, membershipType) {
+    // Ensure select tag is visible
+    $("#platform-select").removeAttr('hidden');
+    
+    let template = `
+        <option value="${Guardian.getPlayerId(membershipId, membershipType)}">
+            ${BungieAPI.getMembershipTypeStr(membershipType)}
+        </option>
+    `;
+    $("#platform-select").append(template);
+    
+    // Ensure selected platform is the current one
+    $("#platform-select").val(guardian.getPlayerId());
+}
+
+
+// ACTIVITIES
+
 async function initPage(membershipId, membershipType, displayName, displayNameCode) {
     fillName(displayName, displayNameCode);
 
@@ -63,8 +105,6 @@ async function initPage(membershipId, membershipType, displayName, displayNameCo
         fillCharacters(guardian.characters);
         fillClan(guardian.clan.clanId, guardian.clan.clanName, guardian.clan.clanSign);
         fillTables();
-    } else {
-        guardian = new Guardian(membershipId, membershipType, displayName, displayNameCode);
     }
 
     // For safety reload everything (only on page load)
@@ -75,7 +115,7 @@ async function initPage(membershipId, membershipType, displayName, displayNameCo
 }
 
 function fetchActivities() {
-    // Get characters id, last played first
+    // Get characters id, selected first to fetch from api TODO
     let currentCharacterId = guardian.getLastPlayedCharacter().characterId;
     let characterIds = [currentCharacterId];
     for (let characterId in guardian.characters){
@@ -264,7 +304,7 @@ async function updateMapInfo() {
     }
 }
 
-// OTHERS
+// INFO
 function fillName(displayName, displayNameCode) {
     const fname = displayName.charAt(0).toUpperCase() + displayName.slice(1);
     $('#guardian-name').text(fname + '#' + displayNameCode);
