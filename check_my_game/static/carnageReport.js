@@ -77,6 +77,7 @@ async function initPage(instanceId) {
             deaths: entry["values"]["deaths"]["basic"]["value"],
         }
 
+        // Alpha is always the winning team
         if (player["winner"]) {
             addPlayerRow("#alpha-scoreboard", player);
         } else {
@@ -88,6 +89,9 @@ async function initPage(instanceId) {
 }
 
 async function populateReportWithCombatRating() {
+    // TODO: save in DB and make this file prettier...
+    // TODO: handle private users
+    
     let queries = [];
     let queriesId = [];
     
@@ -142,6 +146,22 @@ async function populateReportWithCombatRating() {
         const membershipType = playerId.split('-')[1];
         $(`[data-membership_id=${membershipId}][data-membership_type=${membershipType}]`).append(`<td>${cr.toFixed(0)}</td>`);
     });
+    
+    // Print team mean combat rating
+    let alphaCR = [];
+    let betaCR = [];
+    combatRating.forEach((cr, playerId, _) => {
+        const membershipId = playerId.split('-')[0];
+        const membershipType = playerId.split('-')[1];
+        let cell = $(`[data-membership_id=${membershipId}][data-membership_type=${membershipType}]`);
+        if ($(cell).parent().parent().attr('id') === "alpha-scoreboard") {
+            alphaCR.push(cr);
+        } else {
+            betaCR.push(cr);
+        }
+    });
+    $('#alpha-cr').text(`${mean(alphaCR).toFixed(0)}`);
+    $('#beta-cr').text(`${mean(betaCR).toFixed(0)}`);
 }
 
 function setDate(date) {
