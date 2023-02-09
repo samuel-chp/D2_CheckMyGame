@@ -141,8 +141,8 @@ async function initPage(membershipId, membershipType, displayName, displayNameCo
 }
 
 function fetchActivities() {
-    // Get characters id, selected first to fetch from api TODO
-    let currentCharacterId = guardian.getLastPlayedCharacter().characterId;
+    // Get characters id, the one selected to go first when fetching api
+    let currentCharacterId = $('#character-select option:selected').val();
     let characterIds = [currentCharacterId];
     for (let characterId in guardian.characters){
         if (characterId !== currentCharacterId) {
@@ -159,6 +159,7 @@ function fetchActivities() {
 }
 
 async function refreshActivities() {
+    // TODO: add loop to refresh every X minutes...
     let currentCharacterId = $('#character-select').val();
     await guardian.populateCharacterActivities(currentCharacterId, 0, 1, 100);
     fillTables();
