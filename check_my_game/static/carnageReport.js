@@ -84,6 +84,64 @@ async function initPage(instanceId) {
         }
     }
 
+    populateReportWithCombatRating();
+}
+
+async function populateReportWithCombatRating() {
+    let queries = [];
+    let queriesId = [];
+    
+    // Get time steps for queries
+    let periods = [];
+    const today = new Date();
+    let current = new Date(BungieAPI.seasonStartDate);
+    while (dateDiffInDays(current, today) > 0) {
+        let next = new Date(current);
+        next.setDate(next.getDate() + 30);
+        next = new Date(Math.min(next.getTime(), today.getTime()));
+        periods.push([current, next]);
+        current = new Date(next);
+    }
+
+    // Populate queries
+    for (const entry of report["entries"]) {
+        const membershipId = entry["player"]["destinyUserInfo"]["membershipId"];
+        const membershipType = entry["player"]["destinyUserInfo"]["membershipType"];
+        const characterId = entry["characterId"];
+        for (const period of periods) {
+            queries.push(bungieAPI.fetchPlayerStats(membershipId, membershipType, characterId,
+                formatDateToAPIFormat(period[0]), formatDateToAPIFormat(period[1]), 
+                "General", report["activityDetails"]["mode"], "Daily"));
+            queriesId.push(Guardian.getPlayerId(membershipId, membershipType));
+        }
+    }
+    
+    let results = await Promise.all(queries);
+    
+    // Calculate seasonal combat rating (mean of every day)
+    const step = periods.length;
+    let combatRating = new Map();
+    for (let i = 0; i < results.length; i += step) {
+        let dailyStats = [];
+        for (let j = 0; j < step; j++) {
+            const modeStr = Object.getOwnPropertyNames(results[i+j]["Response"])[0];
+            dailyStats = dailyStats.concat(results[i+j]["Response"][modeStr]["daily"]);
+        }
+        let cr = [];
+        for (let d of dailyStats) {
+            if (d) {
+                cr.push(d["values"]["combatRating"]["basic"]["value"]);
+            }
+        }
+        combatRating.set(queriesId[i], mean(cr));
+    }
+    
+    // Populate table
+    combatRating.forEach((cr, playerId, _) => {
+        const membershipId = playerId.split('-')[0];
+        const membershipType = playerId.split('-')[1];
+        $(`[data-membership_id=${membershipId}][data-membership_type=${membershipType}]`).append(`<td>${cr.toFixed(0)}</td>`);
+    });
 }
 
 function setDate(date) {

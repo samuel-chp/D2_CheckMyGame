@@ -1,4 +1,7 @@
 ﻿class BungieAPI {
+    
+    static seasonStartDate = new Date("2022-12-06");
+    
     constructor(secret_key) {
         this.secret_key = secret_key;
         this.endpoint = "https://www.bungie.net";
@@ -121,19 +124,19 @@
         let searchParams = {};
         {
             if (daystart !== "") {
-                searchParams.append("daystart", daystart);
+                searchParams["daystart"] = daystart;
             }
             if (dayend !== "") {
-                searchParams.append("dayend", dayend);
+                searchParams["dayend"] = dayend;
             }
             if (groups !== "") {
-                searchParams.append("groups", groups);
+                searchParams["groups"] = groups;
             }
             if (modes !== "") {
-                searchParams.append("modes", modes);
+                searchParams["modes"] = modes;
             }
             if (periodType !== "") {
-                searchParams.append("periodType", periodType);
+                searchParams["periodType"] = periodType;
             }
         }
         return await this._get(path, searchParams);
@@ -301,7 +304,6 @@
 }
 
 class Guardian {
-    static seasonStartDate = new Date("2022-12-06");
 
     constructor(membershipId, membershipType, displayName = "", displayNameCode = "") {
         this.membershipId = membershipId;
@@ -509,7 +511,7 @@ class Guardian {
     }
 
     getStatsSeasonal(characterId, gamemode) {
-        return this._aggregateStats(characterId, gamemode, Guardian.seasonStartDate, new Date());
+        return this._aggregateStats(characterId, gamemode, BungieAPI.seasonStartDate, new Date());
     }
 
     /**
@@ -678,23 +680,10 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function getSessionVariable(key) {
-    let r = sessionStorage.getItem(key);
-    if (!r) {
-        r = "{}";
-    }
-    r = JSON.parse(r);
-    return r;
-}
-
-function setSessionVariable(key, value) {
-    sessionStorage.setItem(key, JSON.stringify(value));
-}
-
-// DEBUG
-function clearSession() {
-    sessionStorage.setItem("guardians", "{}");
-    sessionStorage.setItem("mapInfo", "{}");
+function mean(array) {
+    const sum = array.reduce((a, b) => a + b, 0);
+    const avg = (sum / array.length) || 0;
+    return avg;
 }
 
 
