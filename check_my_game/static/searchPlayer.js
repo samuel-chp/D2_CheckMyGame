@@ -1,15 +1,23 @@
-﻿window.onload = (event) => {
+﻿document.addEventListener("DOMContentLoaded", function (event) {
     // on close alert
     $(document).on('click', '.alert-close', function () {
         $(this).parent().hide();
     })
 
-    // on search player
+    // On search player
     $('#player-search-input').keydown(function (event) {
         if (event.which === 13) {
             searchPlayer($(this).val());
         }
     });
+    $('#player-search-input').keyup(function (event) {
+        let prefix = $(this).val();
+        if (prefix.length > 3) {
+            searchPlayerByPrefix(prefix);
+        }
+    });
+    
+    // Search player btn
     $(document).on('click', '#player-search-btn', function () {
         searchPlayer($('#player-search-input').val());
     })
@@ -23,7 +31,7 @@
     $(document).on('click', '.btn-close-modal', function () {
         $('#platformModal').modal('hide');
     })
-};
+});
 
 function showAlert(message) {
     const alert = $('#search-alert');
@@ -94,5 +102,29 @@ async function searchPlayer(playerName) {
 
         // Multiple platforms
         showModal(result["Response"], displayName, displayNameCode);
+    }
+}
+
+async function searchPlayerByPrefix(prefix) {
+    const result = await bungieAPI.searchPlayerByPrefix(prefix);
+    
+    // Cancel if user typed before the result of this query
+    if ($('#player-search-input').val().length != prefix.length) {
+        return;
+    }
+    
+    if (!result["Response"]) {
+        return;
+    }
+
+    let players = [];
+    for (const r of result["Response"]["searchResults"]) {
+        players.push(r["bungieGlobalDisplayName"] + "#" + r["bungieGlobalDisplayNameCode"]);
+    }
+    
+    // Update suggestions
+    $("#player-suggestions").empty();
+    for (const player of players) {
+        $('#player-suggestions').append(`<option>${player}</option>`);
     }
 }

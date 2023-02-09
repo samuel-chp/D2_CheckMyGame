@@ -92,6 +92,14 @@
         };
         return await this._post(path, data);
     }
+    
+    async searchPlayerByPrefix(prefix, page=0) {
+        let path = `/User/Search/GlobalName/${page}/`;
+        let data = {
+            "displayNamePrefix": prefix,
+        };
+        return await this._post(path, data);
+    }
 
     async fetchPlayerProfile(membershipId, membershipType) {
         let path = `/Destiny2/${membershipType}/Profile/${membershipId}/`;
