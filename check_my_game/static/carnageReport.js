@@ -91,6 +91,7 @@ async function initPage(instanceId) {
 async function populateReportWithCombatRating() {
     // TODO: save in DB and make this file prettier...
     // TODO: handle private users
+    // TODO: combat rating of 90 days before the activity...
     
     let queries = [];
     let queriesId = [];
