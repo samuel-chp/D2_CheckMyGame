@@ -221,6 +221,8 @@ function addStatToTable(statName, valueTotal, valuePGA = 0) {
 
 // CARNAGE
 function fillCarnageReportTable() {
+    // TODO: Add more games
+
     // Get selected character
     const characterId = $('#character-select option:selected').val();
 
