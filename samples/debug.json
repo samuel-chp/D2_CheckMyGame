@@ -1,792 +1,320 @@
 ﻿{
-    "Response": {
-        "results": [
-            {
-                "memberType": 2,
-                "isOnline": false,
-                "lastOnlineStatusChange": "1675194762",
-                "groupId": "4857219",
-                "destinyUserInfo": {
-                    "LastSeenDisplayName": "geobus13",
-                    "LastSeenDisplayNameType": 2,
-                    "iconPath": "/img/theme/bungienet/icons/psnLogo.png",
-                    "crossSaveOverride": 0,
-                    "applicableMembershipTypes": [
-                        2
-                    ],
-                    "isPublic": false,
-                    "membershipType": 2,
-                    "membershipId": "4611686018435882157",
-                    "displayName": "geobus13",
-                    "bungieGlobalDisplayName": "geobus13",
-                    "bungieGlobalDisplayNameCode": 1590
-                },
-                "bungieNetUserInfo": {
-                    "supplementalDisplayName": "geobus13#1590",
-                    "iconPath": "/img/profile/avatars/cc00008.jpg",
-                    "crossSaveOverride": 0,
-                    "isPublic": false,
-                    "membershipType": 254,
-                    "membershipId": "8652282",
-                    "displayName": "geobus13",
-                    "bungieGlobalDisplayName": "geobus13",
-                    "bungieGlobalDisplayNameCode": 1590
-                },
-                "joinDate": "2022-06-11T20:38:24Z"
-            },
-            {
-                "memberType": 2,
-                "isOnline": true,
-                "lastOnlineStatusChange": "1675358230",
-                "groupId": "4857219",
-                "destinyUserInfo": {
-                    "LastSeenDisplayName": "Gobidok",
-                    "LastSeenDisplayNameType": 3,
-                    "iconPath": "/img/theme/bungienet/icons/steamLogo.png",
-                    "crossSaveOverride": 0,
-                    "applicableMembershipTypes": [
-                        3
-                    ],
-                    "isPublic": false,
-                    "membershipType": 3,
-                    "membershipId": "4611686018508877811",
-                    "displayName": "Gobidok",
-                    "bungieGlobalDisplayName": "Sfixz",
-                    "bungieGlobalDisplayNameCode": 1701
-                },
-                "bungieNetUserInfo": {
-                    "supplementalDisplayName": "Sfixz#1701",
-                    "iconPath": "/img/profile/avatars/default_avatar.gif",
-                    "crossSaveOverride": 0,
-                    "isPublic": false,
-                    "membershipType": 254,
-                    "membershipId": "26818853",
-                    "displayName": "Sfixz",
-                    "bungieGlobalDisplayName": "Sfixz",
-                    "bungieGlobalDisplayNameCode": 1701
-                },
-                "joinDate": "2022-08-21T10:41:51Z"
-            },
-            {
-                "memberType": 2,
-                "isOnline": false,
-                "lastOnlineStatusChange": "1672092256",
-                "groupId": "4857219",
-                "destinyUserInfo": {
-                    "LastSeenDisplayName": "0xi0z",
-                    "LastSeenDisplayNameType": 3,
-                    "iconPath": "/img/theme/bungienet/icons/steamLogo.png",
-                    "crossSaveOverride": 0,
-                    "applicableMembershipTypes": [
-                        3
-                    ],
-                    "isPublic": false,
-                    "membershipType": 3,
-                    "membershipId": "4611686018498470658",
-                    "displayName": "0xi0z",
-                    "bungieGlobalDisplayName": "0xi0z",
-                    "bungieGlobalDisplayNameCode": 2312
-                },
-                "bungieNetUserInfo": {
-                    "supplementalDisplayName": "0xi0z#2312",
-                    "iconPath": "/img/profile/avatars/default_avatar.gif",
-                    "crossSaveOverride": 0,
-                    "isPublic": false,
-                    "membershipType": 254,
-                    "membershipId": "24546385",
-                    "displayName": "0xi0z",
-                    "bungieGlobalDisplayName": "0xi0z",
-                    "bungieGlobalDisplayNameCode": 2312
-                },
-                "joinDate": "2022-04-18T10:44:00Z"
-            },
-            {
-                "memberType": 2,
-                "isOnline": false,
-                "lastOnlineStatusChange": "1666385286",
-                "groupId": "4857219",
-                "destinyUserInfo": {
-                    "LastSeenDisplayName": "WarlockWithin",
-                    "LastSeenDisplayNameType": 3,
-                    "iconPath": "/img/theme/bungienet/icons/steamLogo.png",
-                    "crossSaveOverride": 0,
-                    "applicableMembershipTypes": [
-                        3
-                    ],
-                    "isPublic": false,
-                    "membershipType": 3,
-                    "membershipId": "4611686018520601639",
-                    "displayName": "WarlockWithin",
-                    "bungieGlobalDisplayName": "Adriis",
-                    "bungieGlobalDisplayNameCode": 7350
-                },
-                "bungieNetUserInfo": {
-                    "supplementalDisplayName": "Adriis#7350",
-                    "iconPath": "/img/profile/avatars/logo-skull2.gif",
-                    "crossSaveOverride": 0,
-                    "isPublic": false,
-                    "membershipType": 254,
-                    "membershipId": "29561526",
-                    "displayName": "Adriis",
-                    "bungieGlobalDisplayName": "Adriis",
-                    "bungieGlobalDisplayNameCode": 7350
-                },
-                "joinDate": "2022-04-17T15:30:22Z"
-            },
-            {
-                "memberType": 2,
-                "isOnline": false,
-                "lastOnlineStatusChange": "1653580939",
-                "groupId": "4857219",
-                "destinyUserInfo": {
-                    "LastSeenDisplayName": "micka70-70",
-                    "LastSeenDisplayNameType": 2,
-                    "iconPath": "/img/theme/bungienet/icons/psnLogo.png",
-                    "crossSaveOverride": 0,
-                    "applicableMembershipTypes": [
-                        2
-                    ],
-                    "isPublic": false,
-                    "membershipType": 2,
-                    "membershipId": "4611686018486994508",
-                    "displayName": "micka70-70",
-                    "bungieGlobalDisplayName": "micka70-70",
-                    "bungieGlobalDisplayNameCode": 4071
-                },
-                "bungieNetUserInfo": {
-                    "supplementalDisplayName": "micka70-70#4071",
-                    "iconPath": "/img/profile/avatars/default_avatar.gif",
-                    "crossSaveOverride": 0,
-                    "isPublic": false,
-                    "membershipType": 254,
-                    "membershipId": "30043418",
-                    "displayName": "micka70-70",
-                    "bungieGlobalDisplayName": "micka70-70",
-                    "bungieGlobalDisplayNameCode": 4071
-                },
-                "joinDate": "2022-05-01T12:18:52Z"
-            },
-            {
-                "memberType": 2,
-                "isOnline": false,
-                "lastOnlineStatusChange": "1675266028",
-                "groupId": "4857219",
-                "destinyUserInfo": {
-                    "LastSeenDisplayName": "Breeky",
-                    "LastSeenDisplayNameType": 3,
-                    "iconPath": "/img/theme/bungienet/icons/steamLogo.png",
-                    "crossSaveOverride": 0,
-                    "applicableMembershipTypes": [
-                        3
-                    ],
-                    "isPublic": false,
-                    "membershipType": 3,
-                    "membershipId": "4611686018476641937",
-                    "displayName": "Breeky",
-                    "bungieGlobalDisplayName": "Breeky",
-                    "bungieGlobalDisplayNameCode": 8283
-                },
-                "bungieNetUserInfo": {
-                    "supplementalDisplayName": "Breeky#8283",
-                    "iconPath": "/img/profile/avatars/default_avatar.gif",
-                    "crossSaveOverride": 0,
-                    "isPublic": false,
-                    "membershipType": 254,
-                    "membershipId": "21800656",
-                    "displayName": "Breeky",
-                    "bungieGlobalDisplayName": "Breeky",
-                    "bungieGlobalDisplayNameCode": 8283
-                },
-                "joinDate": "2022-12-10T12:30:56Z"
-            },
-            {
-                "memberType": 2,
-                "isOnline": false,
-                "lastOnlineStatusChange": "1663178890",
-                "groupId": "4857219",
-                "destinyUserInfo": {
-                    "LastSeenDisplayName": "II D3ATHSTROK3",
-                    "LastSeenDisplayNameType": 1,
-                    "iconPath": "/img/theme/bungienet/icons/xboxLiveLogo.png",
-                    "crossSaveOverride": 1,
-                    "applicableMembershipTypes": [
-                        3,
-                        1
-                    ],
-                    "isPublic": false,
-                    "membershipType": 1,
-                    "membershipId": "4611686018430936399",
-                    "displayName": "II D3ATHSTROK3",
-                    "bungieGlobalDisplayName": "II D3ATHSTROK3",
-                    "bungieGlobalDisplayNameCode": 1744
-                },
-                "bungieNetUserInfo": {
-                    "supplementalDisplayName": "II D3ATHSTROK3#1744",
-                    "iconPath": "/img/profile/avatars/default_avatar.gif",
-                    "crossSaveOverride": 0,
-                    "isPublic": false,
-                    "membershipType": 254,
-                    "membershipId": "5500164",
-                    "displayName": "II D3ATHSTROK3",
-                    "bungieGlobalDisplayName": "II D3ATHSTROK3",
-                    "bungieGlobalDisplayNameCode": 1744
-                },
-                "joinDate": "2022-04-17T14:58:01Z"
-            },
-            {
-                "memberType": 2,
-                "isOnline": false,
-                "lastOnlineStatusChange": "1675280046",
-                "groupId": "4857219",
-                "destinyUserInfo": {
-                    "LastSeenDisplayName": "BadBoysMLA",
-                    "LastSeenDisplayNameType": 3,
-                    "iconPath": "/img/theme/bungienet/icons/xboxLiveLogo.png",
-                    "crossSaveOverride": 1,
-                    "applicableMembershipTypes": [
-                        3,
-                        1
-                    ],
-                    "isPublic": false,
-                    "membershipType": 1,
-                    "membershipId": "4611686018451542519",
-                    "displayName": "BadBoysMLA",
-                    "bungieGlobalDisplayName": "BadBoysMLA",
-                    "bungieGlobalDisplayNameCode": 422
-                },
-                "bungieNetUserInfo": {
-                    "supplementalDisplayName": "BadBoysMLA#0422",
-                    "iconPath": "/img/profile/avatars/default_avatar.gif",
-                    "crossSaveOverride": 0,
-                    "isPublic": false,
-                    "membershipType": 254,
-                    "membershipId": "11438419",
-                    "displayName": "BadBoysMLA",
-                    "bungieGlobalDisplayName": "BadBoysMLA",
-                    "bungieGlobalDisplayNameCode": 422
-                },
-                "joinDate": "2022-09-09T16:41:54Z"
-            },
-            {
-                "memberType": 2,
-                "isOnline": false,
-                "lastOnlineStatusChange": "1675288414",
-                "groupId": "4857219",
-                "destinyUserInfo": {
-                    "LastSeenDisplayName": "Defaros",
-                    "LastSeenDisplayNameType": 3,
-                    "iconPath": "/img/theme/bungienet/icons/steamLogo.png",
-                    "crossSaveOverride": 3,
-                    "applicableMembershipTypes": [
-                        1,
-                        5,
-                        6,
-                        3
-                    ],
-                    "isPublic": false,
-                    "membershipType": 3,
-                    "membershipId": "4611686018467759827",
-                    "displayName": "Defaros",
-                    "bungieGlobalDisplayName": "Defaros",
-                    "bungieGlobalDisplayNameCode": 6497
-                },
-                "bungieNetUserInfo": {
-                    "supplementalDisplayName": "Defaros#6497",
-                    "iconPath": "/img/profile/avatars/cc00005.jpg",
-                    "crossSaveOverride": 0,
-                    "isPublic": false,
-                    "membershipType": 254,
-                    "membershipId": "15378355",
-                    "displayName": "Defaros",
-                    "bungieGlobalDisplayName": "Defaros",
-                    "bungieGlobalDisplayNameCode": 6497
-                },
-                "joinDate": "2022-09-07T19:10:24Z"
-            },
-            {
-                "memberType": 2,
-                "isOnline": false,
-                "lastOnlineStatusChange": "1672253424",
-                "groupId": "4857219",
-                "destinyUserInfo": {
-                    "LastSeenDisplayName": "doudougamer007",
-                    "LastSeenDisplayNameType": 1,
-                    "iconPath": "/img/theme/bungienet/icons/xboxLiveLogo.png",
-                    "crossSaveOverride": 0,
-                    "applicableMembershipTypes": [
-                        1
-                    ],
-                    "isPublic": false,
-                    "membershipType": 1,
-                    "membershipId": "4611686018492271854",
-                    "displayName": "doudougamer007",
-                    "bungieGlobalDisplayName": "doudougamer007",
-                    "bungieGlobalDisplayNameCode": 5765
-                },
-                "bungieNetUserInfo": {
-                    "supplementalDisplayName": "doudougamer007#5765",
-                    "iconPath": "/img/profile/avatars/th_BN2Avs73.jpg",
-                    "crossSaveOverride": 0,
-                    "isPublic": false,
-                    "membershipType": 254,
-                    "membershipId": "15517856",
-                    "displayName": "doudougamer007",
-                    "bungieGlobalDisplayName": "doudougamer007",
-                    "bungieGlobalDisplayNameCode": 5765
-                },
-                "joinDate": "2022-04-17T15:29:41Z"
-            },
-            {
-                "memberType": 2,
-                "isOnline": true,
-                "lastOnlineStatusChange": "1675358310",
-                "groupId": "4857219",
-                "destinyUserInfo": {
-                    "LastSeenDisplayName": "Sinrha",
-                    "LastSeenDisplayNameType": 3,
-                    "iconPath": "/img/theme/bungienet/icons/steamLogo.png",
-                    "crossSaveOverride": 0,
-                    "applicableMembershipTypes": [
-                        3
-                    ],
-                    "isPublic": false,
-                    "membershipType": 3,
-                    "membershipId": "4611686018473685299",
-                    "displayName": "Sinrha",
-                    "bungieGlobalDisplayName": "Sinrha",
-                    "bungieGlobalDisplayNameCode": 6001
-                },
-                "bungieNetUserInfo": {
-                    "supplementalDisplayName": "Sinrha#6001",
-                    "iconPath": "/img/profile/avatars/cc43.jpg",
-                    "crossSaveOverride": 0,
-                    "isPublic": false,
-                    "membershipType": 254,
-                    "membershipId": "17601310",
-                    "displayName": "Sinrha",
-                    "bungieGlobalDisplayName": "Sinrha",
-                    "bungieGlobalDisplayNameCode": 6001
-                },
-                "joinDate": "2022-12-14T17:05:17Z"
-            },
-            {
-                "memberType": 2,
-                "isOnline": false,
-                "lastOnlineStatusChange": "1675346758",
-                "groupId": "4857219",
-                "destinyUserInfo": {
-                    "LastSeenDisplayName": "KillerMan3999",
-                    "LastSeenDisplayNameType": 1,
-                    "iconPath": "/img/theme/bungienet/icons/xboxLiveLogo.png",
-                    "crossSaveOverride": 1,
-                    "applicableMembershipTypes": [
-                        3,
-                        1
-                    ],
-                    "isPublic": false,
-                    "membershipType": 1,
-                    "membershipId": "4611686018436978020",
-                    "displayName": "KillerMan3999",
-                    "bungieGlobalDisplayName": "KillerMan3999",
-                    "bungieGlobalDisplayNameCode": 4294
-                },
-                "bungieNetUserInfo": {
-                    "supplementalDisplayName": "KillerMan3999#4294",
-                    "iconPath": "/img/profile/avatars/bungieday_11.jpg",
-                    "crossSaveOverride": 0,
-                    "isPublic": false,
-                    "membershipType": 254,
-                    "membershipId": "7252389",
-                    "displayName": "KillerMan3999",
-                    "bungieGlobalDisplayName": "KillerMan3999",
-                    "bungieGlobalDisplayNameCode": 4294
-                },
-                "joinDate": "2022-11-09T20:31:48Z"
-            },
-            {
-                "memberType": 2,
-                "isOnline": true,
-                "lastOnlineStatusChange": "1675359401",
-                "groupId": "4857219",
-                "destinyUserInfo": {
-                    "LastSeenDisplayName": "Flow-ki11",
-                    "LastSeenDisplayNameType": 3,
-                    "iconPath": "/img/theme/bungienet/icons/steamLogo.png",
-                    "crossSaveOverride": 0,
-                    "applicableMembershipTypes": [
-                        3
-                    ],
-                    "isPublic": false,
-                    "membershipType": 3,
-                    "membershipId": "4611686018523077426",
-                    "displayName": "Flow-ki11",
-                    "bungieGlobalDisplayName": "Flow-ki11",
-                    "bungieGlobalDisplayNameCode": 5921
-                },
-                "bungieNetUserInfo": {
-                    "supplementalDisplayName": "Flow-ki11#5921",
-                    "iconPath": "/img/profile/avatars/default_avatar.gif",
-                    "crossSaveOverride": 0,
-                    "isPublic": false,
-                    "membershipType": 254,
-                    "membershipId": "30192697",
-                    "displayName": "Flow-ki11",
-                    "bungieGlobalDisplayName": "Flow-ki11",
-                    "bungieGlobalDisplayNameCode": 5921
-                },
-                "joinDate": "2022-06-04T12:12:20Z"
-            },
-            {
-                "memberType": 2,
-                "isOnline": true,
-                "lastOnlineStatusChange": "1675358715",
-                "groupId": "4857219",
-                "destinyUserInfo": {
-                    "LastSeenDisplayName": "Youcoulélé",
-                    "LastSeenDisplayNameType": 3,
-                    "iconPath": "/img/theme/bungienet/icons/psnLogo.png",
-                    "crossSaveOverride": 2,
-                    "applicableMembershipTypes": [
-                        3,
-                        6,
-                        2
-                    ],
-                    "isPublic": false,
-                    "membershipType": 2,
-                    "membershipId": "4611686018453279913",
-                    "displayName": "Phenomenuum",
-                    "bungieGlobalDisplayName": "Youcoulélé",
-                    "bungieGlobalDisplayNameCode": 8068
-                },
-                "bungieNetUserInfo": {
-                    "supplementalDisplayName": "Youcoulélé#8068",
-                    "iconPath": "/img/profile/avatars/th_Bn3.jpg",
-                    "crossSaveOverride": 0,
-                    "isPublic": false,
-                    "membershipType": 254,
-                    "membershipId": "12002209",
-                    "displayName": "Youcoulélé",
-                    "bungieGlobalDisplayName": "Youcoulélé",
-                    "bungieGlobalDisplayNameCode": 8068
-                },
-                "joinDate": "2022-08-19T10:50:16Z"
-            },
-            {
-                "memberType": 2,
-                "isOnline": false,
-                "lastOnlineStatusChange": "1675297183",
-                "groupId": "4857219",
-                "destinyUserInfo": {
-                    "LastSeenDisplayName": "IamAsch",
-                    "LastSeenDisplayNameType": 3,
-                    "iconPath": "/img/theme/bungienet/icons/psnLogo.png",
-                    "crossSaveOverride": 2,
-                    "applicableMembershipTypes": [
-                        3,
-                        2
-                    ],
-                    "isPublic": false,
-                    "membershipType": 2,
-                    "membershipId": "4611686018454227695",
-                    "displayName": "Twitch-Asch_TV",
-                    "bungieGlobalDisplayName": "Asch, Son of Oryx",
-                    "bungieGlobalDisplayNameCode": 7319
-                },
-                "bungieNetUserInfo": {
-                    "supplementalDisplayName": "Asch, Son of Oryx#7319",
-                    "iconPath": "/img/profile/avatars/cc26.jpg",
-                    "crossSaveOverride": 0,
-                    "isPublic": false,
-                    "membershipType": 254,
-                    "membershipId": "13482956",
-                    "displayName": "Asch, Son of Oryx",
-                    "bungieGlobalDisplayName": "Asch, Son of Oryx",
-                    "bungieGlobalDisplayNameCode": 7319
-                },
-                "joinDate": "2022-09-13T18:53:15Z"
-            },
-            {
-                "memberType": 2,
-                "isOnline": false,
-                "lastOnlineStatusChange": "1675356965",
-                "groupId": "4857219",
-                "destinyUserInfo": {
-                    "LastSeenDisplayName": "flrn",
-                    "LastSeenDisplayNameType": 3,
-                    "iconPath": "/img/theme/bungienet/icons/steamLogo.png",
-                    "crossSaveOverride": 0,
-                    "applicableMembershipTypes": [
-                        3
-                    ],
-                    "isPublic": false,
-                    "membershipType": 3,
-                    "membershipId": "4611686018523699140",
-                    "displayName": "flrn",
-                    "bungieGlobalDisplayName": "flrn",
-                    "bungieGlobalDisplayNameCode": 8912
-                },
-                "bungieNetUserInfo": {
-                    "supplementalDisplayName": "flrn#8912",
-                    "iconPath": "/img/profile/avatars/d221_18.jpg",
-                    "crossSaveOverride": 0,
-                    "isPublic": false,
-                    "membershipType": 254,
-                    "membershipId": "30381642",
-                    "displayName": "flrn",
-                    "bungieGlobalDisplayName": "flrn",
-                    "bungieGlobalDisplayNameCode": 8912
-                },
-                "joinDate": "2022-08-25T17:44:57Z"
-            },
-            {
-                "memberType": 2,
-                "isOnline": false,
-                "lastOnlineStatusChange": "1675344146",
-                "groupId": "4857219",
-                "destinyUserInfo": {
-                    "LastSeenDisplayName": "David Michigan",
-                    "LastSeenDisplayNameType": 3,
-                    "iconPath": "/img/theme/bungienet/icons/steamLogo.png",
-                    "crossSaveOverride": 3,
-                    "applicableMembershipTypes": [
-                        2,
-                        3
-                    ],
-                    "isPublic": false,
-                    "membershipType": 3,
-                    "membershipId": "4611686018486195121",
-                    "displayName": "David Michigan",
-                    "bungieGlobalDisplayName": "Cenlix",
-                    "bungieGlobalDisplayNameCode": 4226
-                },
-                "bungieNetUserInfo": {
-                    "supplementalDisplayName": "Cenlix#4226",
-                    "iconPath": "/img/profile/avatars/d221_12.jpg",
-                    "crossSaveOverride": 0,
-                    "isPublic": false,
-                    "membershipType": 254,
-                    "membershipId": "20550183",
-                    "displayName": "Cenlix",
-                    "bungieGlobalDisplayName": "Cenlix",
-                    "bungieGlobalDisplayNameCode": 4226
-                },
-                "joinDate": "2023-01-12T19:34:06Z"
-            },
-            {
-                "memberType": 2,
-                "isOnline": false,
-                "lastOnlineStatusChange": "1672059218",
-                "groupId": "4857219",
-                "destinyUserInfo": {
-                    "LastSeenDisplayName": "dealk2",
-                    "LastSeenDisplayNameType": 3,
-                    "iconPath": "/img/theme/bungienet/icons/steamLogo.png",
-                    "crossSaveOverride": 0,
-                    "applicableMembershipTypes": [
-                        3
-                    ],
-                    "isPublic": false,
-                    "membershipType": 3,
-                    "membershipId": "4611686018505711987",
-                    "displayName": "dealk2",
-                    "bungieGlobalDisplayName": "dealk2",
-                    "bungieGlobalDisplayNameCode": 3106
-                },
-                "bungieNetUserInfo": {
-                    "supplementalDisplayName": "dealk2#3106",
-                    "iconPath": "/img/profile/avatars/default_avatar.gif",
-                    "crossSaveOverride": 0,
-                    "isPublic": false,
-                    "membershipType": 254,
-                    "membershipId": "26094472",
-                    "displayName": "dealk2",
-                    "bungieGlobalDisplayName": "dealk2",
-                    "bungieGlobalDisplayNameCode": 3106
-                },
-                "joinDate": "2022-04-17T15:30:25Z"
-            },
-            {
-                "memberType": 5,
-                "isOnline": true,
-                "lastOnlineStatusChange": "1675349823",
-                "groupId": "4857219",
-                "destinyUserInfo": {
-                    "LastSeenDisplayName": "EC_Hell",
-                    "LastSeenDisplayNameType": 3,
-                    "iconPath": "/img/theme/bungienet/icons/xboxLiveLogo.png",
-                    "crossSaveOverride": 1,
-                    "applicableMembershipTypes": [
-                        3,
-                        1
-                    ],
-                    "isPublic": false,
-                    "membershipType": 1,
-                    "membershipId": "4611686018445094724",
-                    "displayName": "EC Sweemit",
-                    "bungieGlobalDisplayName": "EC_Hell",
-                    "bungieGlobalDisplayNameCode": 8198
-                },
-                "bungieNetUserInfo": {
-                    "supplementalDisplayName": "EC_Hell#8198",
-                    "iconPath": "/img/profile/avatars/default_avatar.gif",
-                    "crossSaveOverride": 0,
-                    "isPublic": false,
-                    "membershipType": 254,
-                    "membershipId": "16151755",
-                    "displayName": "EC_Hell",
-                    "bungieGlobalDisplayName": "EC_Hell",
-                    "bungieGlobalDisplayNameCode": 8198
-                },
-                "joinDate": "2022-04-17T14:57:58Z"
-            },
-            {
-                "memberType": 3,
-                "isOnline": false,
-                "lastOnlineStatusChange": "1675356500",
-                "groupId": "4857219",
-                "destinyUserInfo": {
-                    "LastSeenDisplayName": "lscrowttv",
-                    "LastSeenDisplayNameType": 3,
-                    "iconPath": "/img/theme/bungienet/icons/psnLogo.png",
-                    "crossSaveOverride": 2,
-                    "applicableMembershipTypes": [
-                        3,
-                        2
-                    ],
-                    "isPublic": false,
-                    "membershipType": 2,
-                    "membershipId": "4611686018460196876",
-                    "displayName": "lscrowttv_Lrz",
-                    "bungieGlobalDisplayName": "lscrowttv",
-                    "bungieGlobalDisplayNameCode": 7192
-                },
-                "bungieNetUserInfo": {
-                    "supplementalDisplayName": "lscrowttv#7192",
-                    "iconPath": "/img/profile/avatars/default_avatar.gif",
-                    "crossSaveOverride": 0,
-                    "isPublic": false,
-                    "membershipType": 254,
-                    "membershipId": "14656723",
-                    "displayName": "lscrowttv",
-                    "bungieGlobalDisplayName": "lscrowttv",
-                    "bungieGlobalDisplayNameCode": 7192
-                },
-                "joinDate": "2022-04-17T14:57:43Z"
-            },
-            {
-                "memberType": 2,
-                "isOnline": false,
-                "lastOnlineStatusChange": "1675285572",
-                "groupId": "4857219",
-                "destinyUserInfo": {
-                    "LastSeenDisplayName": "Harkun",
-                    "LastSeenDisplayNameType": 3,
-                    "iconPath": "/img/theme/bungienet/icons/xboxLiveLogo.png",
-                    "crossSaveOverride": 1,
-                    "applicableMembershipTypes": [
-                        2,
-                        3,
-                        1
-                    ],
-                    "isPublic": false,
-                    "membershipType": 1,
-                    "membershipId": "4611686018433749357",
-                    "displayName": "Harkun4249",
-                    "bungieGlobalDisplayName": "Harkun",
-                    "bungieGlobalDisplayNameCode": 218
-                },
-                "bungieNetUserInfo": {
-                    "supplementalDisplayName": "Harkun#0218",
-                    "iconPath": "/img/profile/avatars/d221_1.jpg",
-                    "crossSaveOverride": 0,
-                    "isPublic": false,
-                    "membershipType": 254,
-                    "membershipId": "7820871",
-                    "displayName": "Harkun",
-                    "bungieGlobalDisplayName": "Harkun",
-                    "bungieGlobalDisplayNameCode": 218
-                },
-                "joinDate": "2022-04-17T15:05:38Z"
-            },
-            {
-                "memberType": 2,
-                "isOnline": false,
-                "lastOnlineStatusChange": "1673106105",
-                "groupId": "4857219",
-                "destinyUserInfo": {
-                    "LastSeenDisplayName": "jori288s103",
-                    "LastSeenDisplayNameType": 2,
-                    "iconPath": "/img/theme/bungienet/icons/psnLogo.png",
-                    "crossSaveOverride": 0,
-                    "applicableMembershipTypes": [
-                        2
-                    ],
-                    "isPublic": false,
-                    "membershipType": 2,
-                    "membershipId": "4611686018439143082",
-                    "displayName": "jori288s103",
-                    "bungieGlobalDisplayName": "jori288s103",
-                    "bungieGlobalDisplayNameCode": 4232
-                },
-                "bungieNetUserInfo": {
-                    "supplementalDisplayName": "8476595",
-                    "iconPath": "/img/profile/avatars/default_avatar.gif",
-                    "crossSaveOverride": 0,
-                    "isPublic": false,
-                    "membershipType": 254,
-                    "membershipId": "8476595",
-                    "displayName": "jori288s103"
-                },
-                "joinDate": "2022-06-22T15:25:46Z"
-            },
-            {
-                "memberType": 2,
-                "isOnline": false,
-                "lastOnlineStatusChange": "1673214344",
-                "groupId": "4857219",
-                "destinyUserInfo": {
-                    "LastSeenDisplayName": "saddestpilot",
-                    "LastSeenDisplayNameType": 1,
-                    "iconPath": "/img/theme/bungienet/icons/steamLogo.png",
-                    "crossSaveOverride": 3,
-                    "applicableMembershipTypes": [
-                        1,
-                        2,
-                        6,
-                        3
-                    ],
-                    "isPublic": false,
-                    "membershipType": 3,
-                    "membershipId": "4611686018503344143",
-                    "displayName": "Saddestpiiilot",
-                    "bungieGlobalDisplayName": "Saddestpiiilot",
-                    "bungieGlobalDisplayNameCode": 876
-                },
-                "bungieNetUserInfo": {
-                    "supplementalDisplayName": "Saddestpiiilot#0876",
-                    "iconPath": "/img/profile/avatars/Destiny26.jpg",
-                    "crossSaveOverride": 0,
-                    "isPublic": false,
-                    "membershipType": 254,
-                    "membershipId": "25578577",
-                    "displayName": "Saddestpiiilot",
-                    "bungieGlobalDisplayName": "Saddestpiiilot",
-                    "bungieGlobalDisplayNameCode": 876
-                },
-                "joinDate": "2022-09-19T19:03:55Z"
-            }
-        ],
-        "totalResults": 23,
-        "hasMore": false,
-        "query": {
-            "itemsPerPage": 100,
-            "currentPage": 1
-        },
-        "useTotalResults": true
+  "period": "2023-01-10T00:00:00Z",
+  "values": {
+    "activitiesEntered": {
+      "statId": "activitiesEntered",
+      "basic": {
+        "value": 1.0,
+        "displayValue": "1"
+      }
     },
-    "ErrorCode": 1,
-    "ThrottleSeconds": 0,
-    "ErrorStatus": "Success",
-    "Message": "Ok",
-    "MessageData": {}
+    "activitiesWon": {
+      "statId": "activitiesWon",
+      "basic": {
+        "value": 1.0,
+        "displayValue": "1"
+      }
+    },
+    "assists": {
+      "statId": "assists",
+      "basic": {
+        "value": 11.0,
+        "displayValue": "11"
+      },
+      "pga": {
+        "value": 11.0,
+        "displayValue": "11.0"
+      }
+    },
+    "totalDeathDistance": {
+      "statId": "totalDeathDistance",
+      "basic": {
+        "value": 0.0,
+        "displayValue": "0.0"
+      }
+    },
+    "averageDeathDistance": {
+      "statId": "averageDeathDistance",
+      "basic": {
+        "value": 0.0,
+        "displayValue": "0.0"
+      }
+    },
+    "totalKillDistance": {
+      "statId": "totalKillDistance",
+      "basic": {
+        "value": 484.0,
+        "displayValue": "484.0"
+      }
+    },
+    "kills": {
+      "statId": "kills",
+      "basic": {
+        "value": 23.0,
+        "displayValue": "23"
+      },
+      "pga": {
+        "value": 23.0,
+        "displayValue": "23.0"
+      }
+    },
+    "averageKillDistance": {
+      "statId": "averageKillDistance",
+      "basic": {
+        "value": 21.043478260869566,
+        "displayValue": "21.0"
+      }
+    },
+    "secondsPlayed": {
+      "statId": "secondsPlayed",
+      "basic": {
+        "value": 648.0,
+        "displayValue": "10m 48s"
+      },
+      "pga": {
+        "value": 648.0,
+        "displayValue": "10m 48s"
+      }
+    },
+    "deaths": {
+      "statId": "deaths",
+      "basic": {
+        "value": 5.0,
+        "displayValue": "5"
+      },
+      "pga": {
+        "value": 5.0,
+        "displayValue": "5.0"
+      }
+    },
+    "averageLifespan": {
+      "statId": "averageLifespan",
+      "basic": {
+        "value": 108.0,
+        "displayValue": "1m 48s"
+      }
+    },
+    "score": {
+      "statId": "score",
+      "basic": {
+        "value": 60.0,
+        "displayValue": "60"
+      },
+      "pga": {
+        "value": 60.0,
+        "displayValue": "60"
+      }
+    },
+    "averageScorePerKill": {
+      "statId": "averageScorePerKill",
+      "basic": {
+        "value": 2.6086956521739131,
+        "displayValue": "2.61"
+      }
+    },
+    "averageScorePerLife": {
+      "statId": "averageScorePerLife",
+      "basic": {
+        "value": 10.0,
+        "displayValue": "10.00"
+      }
+    },
+    "opponentsDefeated": {
+      "statId": "opponentsDefeated",
+      "basic": {
+        "value": 34.0,
+        "displayValue": "34"
+      }
+    },
+    "efficiency": {
+      "statId": "efficiency",
+      "basic": {
+        "value": 6.8,
+        "displayValue": "6.80"
+      }
+    },
+    "killsDeathsRatio": {
+      "statId": "killsDeathsRatio",
+      "basic": {
+        "value": 4.6,
+        "displayValue": "4.60"
+      }
+    },
+    "killsDeathsAssists": {
+      "statId": "killsDeathsAssists",
+      "basic": {
+        "value": 5.7,
+        "displayValue": "5.70"
+      }
+    },
+    "maximumPowerLevel": {
+      "statId": "maximumPowerLevel",
+      "basic": {
+        "value": 0.0,
+        "displayValue": "0"
+      }
+    },
+    "objectivesCompleted": {
+      "statId": "objectivesCompleted",
+      "basic": {
+        "value": 0.0,
+        "displayValue": "0"
+      },
+      "pga": {
+        "value": 0.0,
+        "displayValue": "0.0"
+      }
+    },
+    "precisionKills": {
+      "statId": "precisionKills",
+      "basic": {
+        "value": 9.0,
+        "displayValue": "9"
+      },
+      "pga": {
+        "value": 9.0,
+        "displayValue": "9.0"
+      }
+    },
+    "resurrectionsPerformed": {
+      "statId": "resurrectionsPerformed",
+      "basic": {
+        "value": 0.0,
+        "displayValue": "0"
+      },
+      "pga": {
+        "value": 0.0,
+        "displayValue": "0.0"
+      }
+    },
+    "resurrectionsReceived": {
+      "statId": "resurrectionsReceived",
+      "basic": {
+        "value": 0.0,
+        "displayValue": "0"
+      },
+      "pga": {
+        "value": 0.0,
+        "displayValue": "0.0"
+      }
+    },
+    "suicides": {
+      "statId": "suicides",
+      "basic": {
+        "value": 0.0,
+        "displayValue": "0"
+      },
+      "pga": {
+        "value": 0.0,
+        "displayValue": "0.0"
+      }
+    },
+    "winLossRatio": {
+      "statId": "winLossRatio",
+      "basic": {
+        "value": -1.0,
+        "displayValue": "-"
+      }
+    },
+    "allParticipantsCount": {
+      "statId": "allParticipantsCount",
+      "basic": {
+        "value": 12.0,
+        "displayValue": "12"
+      }
+    },
+    "allParticipantsScore": {
+      "statId": "allParticipantsScore",
+      "basic": {
+        "value": 283.0,
+        "displayValue": "283"
+      }
+    },
+    "allParticipantsTimePlayed": {
+      "statId": "allParticipantsTimePlayed",
+      "basic": {
+        "value": 7782.0,
+        "displayValue": "2h 9m"
+      }
+    },
+    "remainingTimeAfterQuitSeconds": {
+      "statId": "remainingTimeAfterQuitSeconds",
+      "basic": {
+        "value": 0.0,
+        "displayValue": "0m 0s"
+      },
+      "pga": {
+        "value": 0.0,
+        "displayValue": "0m 0s"
+      }
+    },
+    "teamScore": {
+      "statId": "teamScore",
+      "basic": {
+        "value": 151.0,
+        "displayValue": "151"
+      },
+      "pga": {
+        "value": 151.0,
+        "displayValue": "151"
+      }
+    },
+    "totalActivityDurationSeconds": {
+      "statId": "totalActivityDurationSeconds",
+      "basic": {
+        "value": 651.0,
+        "displayValue": "10m 51s"
+      },
+      "pga": {
+        "value": 651.0,
+        "displayValue": "10m 51s"
+      }
+    },
+    "dailyMedalsEarned": {
+      "statId": "dailyMedalsEarned",
+      "basic": {
+        "value": 25.0,
+        "displayValue": "25"
+      },
+      "pga": {
+        "value": 25.0,
+        "displayValue": "25.0"
+      }
+    },
+    "combatRating": {
+      "statId": "combatRating",
+      "basic": {
+        "value": 254.61327051433065,
+        "displayValue": "254.61"
+      }
+    },
+    "highestCharacterLevel": {
+      "statId": "highestCharacterLevel",
+      "basic": {
+        "value": 50.0,
+        "displayValue": "50"
+      }
+    },
+    "highestLightLevel": {
+      "statId": "highestLightLevel",
+      "basic": {
+        "value": 1604.0,
+        "displayValue": "1604"
+      }
+    },
+    "highestSandboxLevel": {
+      "statId": "highestSandboxLevel",
+      "basic": {
+        "value": 50.0,
+        "displayValue": "50"
+      }
+    },
+    "fireTeamActivities": {
+      "statId": "fireTeamActivities",
+      "basic": {
+        "value": 0.0,
+        "displayValue": "0"
+      }
+    }
+  }
 }

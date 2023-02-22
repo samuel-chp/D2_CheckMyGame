@@ -1,0 +1,28 @@
+﻿@inject BungieAPI Api
+@inject BungieHttpClient ApiClient
+
+<div>
+    <input @ref="@_searchButton" id="player-search-input" type="text" placeholder="Search a player..." list="player-suggestions"/>
+    <datalist @ref="@_datalist" id="player-suggestions">
+        @* <option>volvo</option> *@
+        @* <option>voiture</option> *@
+    </datalist>
+    <button id="player-search-btn">Search</button>
+</div>
+
+@code {
+    private ElementReference _searchButton;
+    private ElementReference _datalist;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        Api.Test();
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+    }
+
+}
