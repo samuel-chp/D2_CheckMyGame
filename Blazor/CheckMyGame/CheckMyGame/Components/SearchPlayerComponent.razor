@@ -1,5 +1,11 @@
-﻿@inject BungieAPI Api
+﻿@using DotNetBungieAPI.Service.Abstractions
+@using DotNetBungieAPI.Models
+@using DotNetBungieAPI.Models.Destiny
+@using DotNetBungieAPI
+@using DotNetBungieAPI.Models.Destiny.Components
+@inject BungieAPI Api
 @inject BungieHttpClient ApiClient
+@inject IBungieClient BungieClient
 
 <div>
     <input @ref="@_searchButton" id="player-search-input" type="text" placeholder="Search a player..." list="player-suggestions"/>
@@ -14,15 +20,20 @@
     private ElementReference _searchButton;
     private ElementReference _datalist;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        base.OnInitialized();
-        Api.Test();
-    }
+        var r = await BungieClient.ApiAccess.Destiny2.GetProfile(
+            BungieMembershipType.TigerSteam,
+            4611686018476641937,
+            new DestinyComponentType[1] { DestinyComponentType.Characters });
 
-    protected override void OnAfterRender(bool firstRender)
-    {
-        base.OnAfterRender(firstRender);
+        foreach (KeyValuePair<long, DestinyCharacterComponent> characterComponent in r.Response.Characters.Data)
+        {
+            Console.WriteLine(characterComponent.Key);
+            Console.WriteLine(characterComponent.Value);
+        }
+        
+        await base.OnInitializedAsync();
     }
 
 }

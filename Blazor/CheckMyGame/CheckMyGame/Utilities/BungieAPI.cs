@@ -1,4 +1,6 @@
 ﻿using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
 using System.Web;
 
 namespace CheckMyGame.Utilities;
@@ -75,6 +77,42 @@ public class BungieAPI
         // Auth to bungie.net
         request.Headers.Add("X-API-Key", _apiKey);
         
+        // Send request
+        using var httpResponse = await BungieClient.SendAsync(request);
+
+        // Check success
+        if (!httpResponse.IsSuccessStatusCode)
+        {
+            Console.WriteLine(httpResponse.ReasonPhrase);
+            return null;
+        }
+
+        return await httpResponse.Content.ReadFromJsonAsync<dynamic>();
+    }
+    
+    private async Task<dynamic?> Post(string path, Dictionary<string, string> data, Dictionary<string, string> searchParams)
+    {
+        var uri = new Uri(BungieClient.BaseAddress, $"Platform/{path}");
+        
+        // Add query params
+        var uriBuilder = new UriBuilder(uri);
+        var query = HttpUtility.ParseQueryString(uriBuilder.Query);
+        foreach (KeyValuePair<string,string> searchParam in searchParams)
+        {
+            query[searchParam.Key] = searchParam.Value;
+        }
+        uriBuilder.Query = query.ToString();
+        uri = new Uri(uriBuilder.ToString());
+        
+        // Init request
+        var request = new HttpRequestMessage(HttpMethod.Post, uri);
+        
+        // Auth to bungie.net
+        request.Headers.Add("X-API-Key", _apiKey);
+        
+        // Body - Data
+        request.Content = new StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json");
+
         // Send request
         using var httpResponse = await BungieClient.SendAsync(request);
 
