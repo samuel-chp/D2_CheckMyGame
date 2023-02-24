@@ -9,7 +9,12 @@
 @inject IBungieClient BungieClient
 
 <MudForm>
-    <MudAutocomplete T="string" Label="Guardian name" @bind-Value="_inputName" SearchFunc="SearchGuardian"
+    <MudAutocomplete T="string" 
+                     Label="Guardian name" 
+                     @bind-Value="_inputName" 
+                     SearchFuncWithCancel="SearchGuardianByPrefix"
+                     ShowProgressIndicator="true"
                      CoerceText="true" CoerceValue="true"
-                     AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary"/>
+                     AdornmentIcon="@Icons.Material.Filled.Search" 
+                     AdornmentColor="Color.Primary"/>
 </MudForm>

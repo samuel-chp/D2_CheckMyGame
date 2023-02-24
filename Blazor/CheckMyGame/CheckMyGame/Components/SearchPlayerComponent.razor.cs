@@ -12,9 +12,10 @@ public partial class SearchPlayerComponent : ComponentBase
     private const int MinimumNameLength = 3;
 
     // Current input value in autocomplete
-    private string _inputName;
+    private string _inputName = "";
+    
     // Current guardians identified while autocompleting
-    private Dictionary<string, UserSearchResponseDetail> _currentSelection;
+    private Dictionary<string, UserSearchResponseDetail> _currentSelection = new();
 
     /// <summary>
     /// Regex on the name provided to check if it is a valid bungie name.
@@ -35,6 +36,8 @@ public partial class SearchPlayerComponent : ComponentBase
         {
             return false;
         }
+        
+        Console.WriteLine(names[0]);
 
         // Check for only letter, numbers, underscores, whitespaces in prefix
         if (!Regex.IsMatch(names[0], @"^[a-zA-Z0-9_\s]+$"))
@@ -43,7 +46,7 @@ public partial class SearchPlayerComponent : ComponentBase
         }
 
         // Check for only number in suffix
-        if (names.Length > 1 && !Regex.IsMatch(names[0], @"^[0-9]+$"))
+        if (names.Length > 1 && names[1].Length > 0 && !Regex.IsMatch(names[1], @"^[0-9]+$"))
         {
             return false;
         }
@@ -51,8 +54,15 @@ public partial class SearchPlayerComponent : ComponentBase
         return true;
     }
 
-    private async Task<IEnumerable<string>> SearchGuardian(string guardianName)
+    /// <summary>
+    /// Request bungieApi to fetch guardian matching the given prefix.
+    /// </summary>
+    /// <param name="guardianName"></param>
+    /// <param name="token"></param>
+    /// <returns></returns>
+    private async Task<IEnumerable<string>> SearchGuardianByPrefix(string guardianName, CancellationToken token)
     {
+        // Check if name valid
         if (!IsNameValid(guardianName))
         {
             return Array.Empty<string>();
@@ -61,12 +71,10 @@ public partial class SearchPlayerComponent : ComponentBase
         string prefix = guardianName.Split('#')[0];
 
         // Request Bungie api
+        // TODO: disable rate limit log errors in console
         UserSearchPrefixRequest requestBody = new UserSearchPrefixRequest(prefix);
-
         BungieResponse<UserSearchResponse> response =
-            await BungieClient.ApiAccess.User.SearchByGlobalNamePost(requestBody);
-
-        // Store response in _currentSelection
+            await BungieClient.ApiAccess.User.SearchByGlobalNamePost(requestBody, 0, token);
         _currentSelection = response.Response.SearchResults.ToDictionary(
             g => g.BungieGlobalDisplayName + "#" + g.BungieGlobalDisplayNameCode,
             g => g
