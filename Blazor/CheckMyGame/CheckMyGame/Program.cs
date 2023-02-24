@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using CheckMyGame;
-using CheckMyGame.Utilities;
 using MudBlazor.Services;
 using DotNetBungieAPI;
 using DotNetBungieAPI.DefinitionProvider.Sqlite;
@@ -14,10 +13,6 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-
-// Bungie API
-builder.Services.AddSingleton<BungieHttpClient>();
-builder.Services.AddSingleton<BungieAPI>(sp => new(sp.GetRequiredService<BungieHttpClient>()));
 
 // Bungie API DotNet
 builder.Services.UseBungieApiClient(bungieClient =>
@@ -41,7 +36,6 @@ builder.Services.UseBungieApiClient(bungieClient =>
         options.SetRateLimitSettings(20, TimeSpan.FromSeconds(1));
     });
 });
-
 
 // Mud blazor
 builder.Services.AddMudServices();

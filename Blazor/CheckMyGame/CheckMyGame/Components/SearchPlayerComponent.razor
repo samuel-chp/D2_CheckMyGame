@@ -3,37 +3,13 @@
 @using DotNetBungieAPI.Models.Destiny
 @using DotNetBungieAPI
 @using DotNetBungieAPI.Models.Destiny.Components
-@inject BungieAPI Api
-@inject BungieHttpClient ApiClient
+@using System.Text.RegularExpressions
+@using DotNetBungieAPI.Models.Requests
+@using DotNetBungieAPI.Models.User
 @inject IBungieClient BungieClient
 
-<div>
-    <input @ref="@_searchButton" id="player-search-input" type="text" placeholder="Search a player..." list="player-suggestions"/>
-    <datalist @ref="@_datalist" id="player-suggestions">
-        @* <option>volvo</option> *@
-        @* <option>voiture</option> *@
-    </datalist>
-    <button id="player-search-btn">Search</button>
-</div>
-
-@code {
-    private ElementReference _searchButton;
-    private ElementReference _datalist;
-
-    protected override async Task OnInitializedAsync()
-    {
-        var r = await BungieClient.ApiAccess.Destiny2.GetProfile(
-            BungieMembershipType.TigerSteam,
-            4611686018476641937,
-            new DestinyComponentType[1] { DestinyComponentType.Characters });
-
-        foreach (KeyValuePair<long, DestinyCharacterComponent> characterComponent in r.Response.Characters.Data)
-        {
-            Console.WriteLine(characterComponent.Key);
-            Console.WriteLine(characterComponent.Value);
-        }
-        
-        await base.OnInitializedAsync();
-    }
-
-}
+<MudForm>
+    <MudAutocomplete T="string" Label="Guardian name" @bind-Value="_inputName" SearchFunc="SearchGuardian"
+                     CoerceText="true" CoerceValue="true"
+                     AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary"/>
+</MudForm>
