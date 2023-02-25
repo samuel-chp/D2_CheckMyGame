@@ -1,3 +1,26 @@
-﻿@page "/Player/{membershipType:int}/{membershipId:long}"
+﻿@using DotNetBungieAPI.Service.Abstractions
+@inject IBungieClient BungieClient
 
-<h3>PlayerPage</h3>
+@page "/Player/{membershipType:int}/{membershipId:long}"
+
+<MudContainer>
+    <!-- Title !-->
+    <MudText Typo="Typo.h3" Align="Align.Center">
+        @DisplayName#@DisplayNameCode
+    </MudText>
+    
+    @if (!String.IsNullOrEmpty(_playerGroupV2.Name))
+    {
+        <MudButton Variant="Variant.Filled" Color="Color.Primary">@_playerGroupV2.ClanInfo.ClanCallSign</MudButton>
+    }
+
+    <MudSelect T="string" Label="Character" AnchorOrigin="Origin.BottomCenter">
+        @* <MudSelectItem Value="@("Cappuccino")" /> *@
+        @* <MudSelectItem Value="@("Cafe Latte")" /> *@
+        @* <MudSelectItem Value="@("Espresso")" /> *@
+    </MudSelect>
+    
+</MudContainer>
+
+
+
