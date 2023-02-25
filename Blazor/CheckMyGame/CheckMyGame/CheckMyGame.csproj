@@ -15,8 +15,13 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Utilities" />
       <Folder Include="wwwroot\js" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Pages\PlayerPage.razor.cs">
+        <DependentUpon>PlayerPage.razor</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>

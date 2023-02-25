@@ -33,7 +33,8 @@ builder.Services.UseBungieApiClient(bungieClient =>
     // });
     bungieClient.DotNetBungieApiHttpClient.ConfigureDefaultHttpClient(options =>
     {
-        options.SetRateLimitSettings(20, TimeSpan.FromSeconds(1));
+        // options.SetRateLimitSettings(20, TimeSpan.FromSeconds(1));
+        // options.MaxRequestsPerSecond = 20;
     });
 });
 
