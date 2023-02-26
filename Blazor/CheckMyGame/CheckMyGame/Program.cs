@@ -1,12 +1,15 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using CheckMyGame;
+using CheckMyGame.Utilities;
 using MudBlazor.Services;
 using DotNetBungieAPI;
 using DotNetBungieAPI.DefinitionProvider.Sqlite;
 using DotNetBungieAPI.Extensions;
 using DotNetBungieAPI.Models;
 using DotNetBungieAPI.Models.Applications;
+using DotNetBungieAPI.Service.Abstractions;
+using Microsoft.JSInterop;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -40,5 +43,9 @@ builder.Services.UseBungieApiClient(bungieClient =>
 
 // Mud blazor
 builder.Services.AddMudServices();
+
+// Test
+builder.Services.AddSingleton<IndexedDBDefinitionProvider>(serviceProvider =>
+    new(serviceProvider.GetRequiredService<IJSRuntime>(), "CheckMyGame", 0.1f));
 
 await builder.Build().RunAsync();

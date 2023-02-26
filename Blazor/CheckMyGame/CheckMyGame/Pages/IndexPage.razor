@@ -1,8 +1,10 @@
 ﻿@page "/"
+@using DotNetBungieAPI.Service.Abstractions
+@using CheckMyGame.Utilities
 
 @layout IndexLayout
 
-@inject NavigationManager NavigationManager
+@inject IndexedDBDefinitionProvider IndexedDbDefinitionProvider
 
 <PageTitle>Index</PageTitle>
 

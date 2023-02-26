@@ -1,4 +1,5 @@
 ﻿@using DotNetBungieAPI.Service.Abstractions
+@using DotNetBungieAPI.Models.Destiny.Components
 @inject IBungieClient BungieClient
 
 @page "/Player/{membershipType:int}/{membershipId:long}"
@@ -14,11 +15,19 @@
         <MudButton Variant="Variant.Filled" Color="Color.Primary">@_playerGroupV2.ClanInfo.ClanCallSign</MudButton>
     }
 
-    <MudSelect T="string" Label="Character" AnchorOrigin="Origin.BottomCenter">
-        @* <MudSelectItem Value="@("Cappuccino")" /> *@
-        @* <MudSelectItem Value="@("Cafe Latte")" /> *@
-        @* <MudSelectItem Value="@("Espresso")" /> *@
-    </MudSelect>
+    @if (_playerCharacters.Count > 0)
+    {
+        <MudSelect T="DestinyCharacterComponent" ToStringFunc="@DisplayCharacter"
+                   Label="Character" AnchorOrigin="Origin.BottomCenter">
+            @foreach (var playerCharacter in _playerCharacters)
+            {
+                <MudSelectItem Value="playerCharacter" />
+            }
+            @* <MudSelectItem Value="@("Cappuccino")" /> *@
+            @* <MudSelectItem Value="@("Cafe Latte")" /> *@
+            @* <MudSelectItem Value="@("Espresso")" /> *@
+        </MudSelect>
+    }
     
 </MudContainer>
 

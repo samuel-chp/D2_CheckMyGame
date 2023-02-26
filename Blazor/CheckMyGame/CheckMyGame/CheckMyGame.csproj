@@ -11,11 +11,15 @@
         <PackageReference Include="DotNetBungieAPI.DefinitionProvider.Sqlite" Version="1.4.3" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.9" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.9" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.Data.Sqlite" Version="7.0.3" />
+        <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="7.0.3" />
         <PackageReference Include="MudBlazor" Version="6.1.9" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="wwwroot\js" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+        <PackageReference Include="SQLite" Version="3.13.0" />
+        <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.4" />
+        <PackageReference Include="SQLitePCLRaw.core" Version="2.1.4" />
+        <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.4" />
+        <PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" Version="2.1.4" />
     </ItemGroup>
 
     <ItemGroup>
